@@ -13,12 +13,12 @@ variable "cache_cluster_port" {
 }
 
 variable "cluster_name" {
-  description = "(memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources."
+  description = "(memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
   type        = "string"
 }
 
 variable "cluster_name_version" {
-  description = "(memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot"
+  description = "(memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
   default     = "v00"
   type        = "string"
 }

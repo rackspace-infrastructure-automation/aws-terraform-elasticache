@@ -55,7 +55,13 @@ locals {
   redis_node_count = "${var.number_of_nodes < 2 ? 2 : var.number_of_nodes}"
 
   # Construct cluster naming with cluster version here
-  substring_length         = "${19 - length(var.cluster_name_version) > length(var.cluster_name) ? length(var.cluster_name) : 19 - length(var.cluster_name_version)}"
+  # There is a 20 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.cluster_name,
+  # var.cluster_name_version, and a hyphen. 19 is being used as a limit to take account the hyphen that will be used.
+  # Since there is a limit, we must determine how much of the provided input to var.cluster_name can be used.
+  # Total length is (full length of var.cluster_name_version) + (length of hyphen) + (substring of var.cluster_name_version)
+  # So if the constructed cluster name is too long, var.cluster_name will trimmed off.
+  substring_length = "${19 - length(var.cluster_name_version) > length(var.cluster_name) ? length(var.cluster_name) : 19 - length(var.cluster_name_version)}"
+
   constructed_cluster_name = "${var.cluster_name_version != "" ? join("-", list(substr(var.cluster_name, 0, local.substring_length), var.cluster_name_version)) : substr(var.cluster_name, 0, local.substring_length)}"
 
   # For non-multi-shard redis or memcached, determine alarm counts
@@ -68,9 +74,11 @@ locals {
   default_port = "${local.elasticache_name == "memcached" ? "11211" : "6379"}"
   set_port     = "${var.cache_cluster_port != "" ? var.cache_cluster_port : local.default_port}"
 
-  # Determine if Instance Class is T2 instance
+  # Determine if Instance Class is T2 instance. This condition is being checked since automatic failover
+  # is not supported on t2 instances for elasticache redis replication groups.
   instance_prefix = "${element(split(".",var.instance_class), 1)}"
-  is_t2           = "${local.instance_prefix == "t2" ? true : false}"
+
+  is_t2 = "${local.instance_prefix == "t2" ? true : false}"
 
   tags = {
     Environment     = "${var.environment}"

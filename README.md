@@ -29,8 +29,8 @@ Full working references are available at [examples](examples)
 | additional_tags | (memcached, redis, redis multi shard) Additional tags to be added to the Elasticache resources. Please see examples directory in this repo for examples. | map | `<map>` | no |
 | at_rest_encrypted_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false | string | `false` | no |
 | cache_cluster_port | (memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211 | string | `` | no |
-| cluster_name | (memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. | string | - | yes |
-| cluster_name_version | (memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot | string | `v00` | no |
+| cluster_name | (memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints | string | - | yes |
+| cluster_name_version | (memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints | string | `v00` | no |
 | cpu_high_evaluations | (memcached, redis) The number of minutes CPU usage must remain above the specified threshold to generate an alarm. | string | `5` | no |
 | cpu_high_threshold | (memcached, redis) The max CPU Usage % before generating an alarm. | string | `90` | no |
 | create_route53_record | (memcached, redis, redis multi shard) Specifies whether or not to create a route53 CNAME record for the configuration/primary endpoint. internal_zone_id, internal_zone_name, and internal_record_name must be provided if set to true. true or false. | string | `false` | no |
@@ -67,4 +67,3 @@ Full working references are available at [examples](examples)
 | Name | Description |
 |------|-------------|
 | elasticache_endpoint | Elasticache endpoint address |
-
