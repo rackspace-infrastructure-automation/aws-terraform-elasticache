@@ -67,3 +67,4 @@ Full working references are available at [examples](examples)
 | Name | Description |
 |------|-------------|
 | elasticache_endpoint | Elasticache endpoint address |
+| elasticache_internal_r53_record | Internal Route 53 record FQDN for the Elasticache endpoint(s) |

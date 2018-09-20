@@ -88,12 +88,27 @@ output "memcached_endpoint" {
   value       = "${module.elasticache_memcached.elasticache_endpoint}"
 }
 
+output "memcached_internal_r53_record" {
+  description = "Internal Route 53 record FQDN for the Elasticache endpoint(s)"
+  value       = "${module.elasticache_memcached.elasticache_internal_r53_record}"
+}
+
 output "redis_endpoint" {
   description = "Redis endpoint"
   value       = "${module.elasticache_redis.elasticache_endpoint}"
 }
 
+output "redis_internal_r53_record" {
+  description = "Internal Route 53 record FQDN for the Elasticache endpoint(s)"
+  value       = "${module.elasticache_redis.elasticache_internal_r53_record}"
+}
+
 output "redis_multi_shard_endpoint" {
   description = "Redis Multi Shard endpoint"
   value       = "${module.elasticache_redis_multi_shard.elasticache_endpoint}"
+}
+
+output "redis_multi_shard_internal_r53_record" {
+  description = "Internal Route 53 record FQDN for the Elasticache endpoint(s)"
+  value       = "${module.elasticache_redis_multi_shard.elasticache_internal_r53_record}"
 }
