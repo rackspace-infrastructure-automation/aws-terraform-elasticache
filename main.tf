@@ -80,6 +80,8 @@ locals {
 
   is_t2 = "${local.instance_prefix == "t2" ? true : false}"
 
+  snapshot_supported = "${local.instance_prefix == "t2" || var.instance_class == "cache.t1.micro" ? false : true}"
+
   tags = {
     Environment     = "${var.environment}"
     ServiceProvider = "Rackspace"
@@ -114,7 +116,7 @@ resource "aws_route53_record" "internal_record_set_elasticache" {
 ###<Elasticache Memcached and Redis non-multi-shard Shared Resources>###
 
 resource "aws_cloudwatch_metric_alarm" "evictions_alarm" {
-  count               = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
+  count               = "${!(local.redis_multishard) && !(local.conflict_exists) && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0}"
   alarm_name          = "${local.redis_memcached_alarm_count > 1 ? "${var.cluster_name}-Node${count.index}EvictionsAlarm" : "${var.cluster_name}-EvictionsAlarm"}"
   evaluation_periods  = "${var.evictions_evaluations}"
   alarm_actions       = ["${compact(list(var.notification_topic))}"]
@@ -150,7 +152,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization_alarm" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "curr_connections_alarm" {
-  count               = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
+  count               = "${!(local.redis_multishard) && !(local.conflict_exists) && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0}"
   alarm_name          = "${local.redis_memcached_alarm_count > 1 ? "${var.cluster_name}-Node${count.index}CurrConnectionsAlarm" : "${var.cluster_name}-CurrConnectionsAlarm"}"
   evaluation_periods  = "${var.curr_connections_evaluations}"
   alarm_actions       = ["${compact(list(var.notification_topic))}"]
@@ -222,9 +224,9 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   parameter_group_name          = "${aws_elasticache_parameter_group.elasticache_parameter_group.name}"
   snapshot_arns                 = ["${compact(list(var.snapshot_arn))}"]
   transit_encryption_enabled    = "${var.in_transit_encryption}"
-  snapshot_retention_limit      = "${var.snapshot_retention_limit}"
-  snapshot_name                 = "${var.snapshot_name}"
-  snapshot_window               = "${var.snapshot_window}"
+  snapshot_retention_limit      = "${local.snapshot_supported ? var.snapshot_retention_limit : 0}"
+  snapshot_name                 = "${local.snapshot_supported ? var.snapshot_name : ""}"
+  snapshot_window               = "${local.snapshot_supported ? var.snapshot_window : ""}"
   at_rest_encryption_enabled    = "${local.encryption_supported ? var.at_rest_encrypted_disk : false}"
   replication_group_id          = "${local.constructed_cluster_name}"
   security_group_ids            = ["${compact(var.security_group_list)}"]
