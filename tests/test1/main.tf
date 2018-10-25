@@ -1,6 +1,5 @@
 provider "aws" {
-  version = "~> 1.2, < 1.41.0"
-  region  = "us-west-2"
+  region = "us-west-2"
 }
 
 resource "random_string" "r_string" {
