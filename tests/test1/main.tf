@@ -76,6 +76,10 @@ module "elasticache_redis" {
   internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
   internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
 
+  # Test single-shard, single-node, no failover
+  number_of_nodes  = 1
+  failover_enabled = false
+
   additional_tags = {
     MyTag1 = "MyValue1"
     MyTag2 = "MyValue2"

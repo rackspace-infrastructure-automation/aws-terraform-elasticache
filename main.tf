@@ -52,7 +52,7 @@ locals {
   redis_multishard = "${local.elasticache_name == "redis" && var.redis_multi_shard ? true : false}"
 
   # Default for number_of_nodes is 1, but at least 2 is required for redis non-multi-shard
-  redis_node_count = "${var.number_of_nodes < 2 ? 2 : var.number_of_nodes}"
+  redis_node_count = "${var.number_of_nodes < 2 && var.failover_enabled ? 2 : var.number_of_nodes}"
 
   # Construct cluster naming with cluster version here
   # There is a 20 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.cluster_name,
