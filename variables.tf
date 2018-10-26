@@ -42,7 +42,6 @@ variable "environment" {
 
 variable "instance_class" {
   description = "(memcached, redis, redis multi shard) The compute and memory capacity of the nodes within the ElastiCache cluster. Please see https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/CacheNodes.SupportedTypes.html for valid instance types."
-  default     = "cache.m3.medium"
   type        = "string"
 }
 
@@ -98,43 +97,43 @@ variable "subnets" {
 
 variable "cpu_high_threshold" {
   description = "(memcached, redis) The max CPU Usage % before generating an alarm."
-  default     = "90"
+  default     = 90
   type        = "string"
 }
 
 variable "cpu_high_evaluations" {
   description = "(memcached, redis) The number of minutes CPU usage must remain above the specified threshold to generate an alarm."
-  default     = "5"
+  default     = 5
   type        = "string"
 }
 
 variable "curr_connections_evaluations" {
   description = "(memcached, redis) The number of minutes current connections must remain above the specified threshold to generate an alarm."
-  default     = "5"
+  default     = 5
   type        = "string"
 }
 
 variable "curr_connections_threshold" {
-  description = "(memcached, redis) The max number of current connections before generating an alarm."
+  description = "(memcached, redis) The max number of current connections before generating an alarm. NOTE: If this variable is not set, the connections alarm will not be provisioned."
   default     = ""
   type        = "string"
 }
 
 variable "evictions_evaluations" {
   description = "(memcached, redis) The number of minutes Evictions must remain above the specified threshold to generate an alarm."
-  default     = "5"
+  default     = 5
   type        = "string"
 }
 
 variable "evictions_threshold" {
-  description = "(memcached, redis) The max evictions before generating an alarm."
+  description = "(memcached, redis) The max evictions before generating an alarm. NOTE: If this variable is not set, the evictions alarm will not be provisioned."
   default     = ""
   type        = "string"
 }
 
 variable "number_of_nodes" {
   description = "(memcached, redis) The number of cache nodes within the ElastiCache cluster"
-  default     = "1"
+  default     = 1
   type        = "string"
 }
 
@@ -161,13 +160,13 @@ variable "snapshot_arn" {
 }
 
 variable "snapshot_name" {
-  description = "(redis, redis multi shard) The name of a snapshot to use for cluster creation. This property overrides any value assigned to SnapshotArn."
+  description = "(redis, redis multi shard) The name of a snapshot to use for cluster creation. This property overrides any value assigned to SnapshotArn. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes."
   default     = ""
   type        = "string"
 }
 
 variable "snapshot_window" {
-  description = "(redis, redis multi shard) The daily time range (in UTC) during which ElastiCache will begin taking a daily snapshot of your node group. Snapshots are unsupported on cache.t2.* instance classes."
+  description = "(redis, redis multi shard) The daily time range (in UTC) during which ElastiCache will begin taking a daily snapshot of your node group. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes."
   default     = "03:00-05:00"
   type        = "string"
 }
@@ -179,8 +178,8 @@ variable "at_rest_encrypted_disk" {
 }
 
 variable "snapshot_retention_limit" {
-  description = "(redis, redis multi shard) The number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to 0 disables automated backups. Snapshots are unsupported on cache.t2.* instance classes."
-  default     = "7"
+  description = "(redis, redis multi shard) The number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to 0 disables automated backups. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes."
+  default     = 7
   type        = "string"
 }
 
@@ -199,13 +198,13 @@ variable "failover_enabled" {
 
 variable "number_of_read_replicas_per_shard" {
   description = "(redis multi shard) Number of read replicas per shard"
-  default     = "2"
+  default     = 2
   type        = "string"
 }
 
 variable "number_of_shards" {
   description = "(redis multi shard) Number of shards"
-  default     = "2"
+  default     = 2
   type        = "string"
 }
 
@@ -215,13 +214,13 @@ variable "number_of_shards" {
 
 variable "swap_usage_evaluations" {
   description = "(memcached) The number of minutes SwapUsage must remain above the specified threshold to generate an alarm"
-  default     = "5"
+  default     = 5
   type        = "string"
 }
 
 variable "swap_usage_threshold" {
   description = "(memcached) The max SwapUsage before generating an alarm"
-  default     = "52428800"
+  default     = 52428800
   type        = "string"
 }
 
