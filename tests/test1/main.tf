@@ -105,6 +105,10 @@ module "elasticache_redis_2" {
   evictions_threshold        = 10
   curr_connections_threshold = 500
 
+  # Test single-shard, single-node, no failover
+  number_of_nodes  = 1
+  failover_enabled = false
+  
   additional_tags = {
     MyTag1 = "MyValue1"
     MyTag2 = "MyValue2"

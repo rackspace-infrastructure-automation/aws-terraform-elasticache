@@ -67,7 +67,7 @@ locals {
   truncated_constructed_cluster_name = "${substr(local.constructed_cluster_name, 0, min(20, length(local.constructed_cluster_name)))}"
 
   # For non-multi-shard redis or memcached, determine alarm counts
-  redis_memcached_alarm_count = "${local.elasticache_name == "memcached" ? 1 : local.redis_node_count}"
+  redis_memcached_alarm_count = "${local.elasticache_name == "memcached" ? 1 : var.number_of_nodes}"
 
   # If redis multi shard and memcached is specified, consider this a conflict to prevent resources from being created.
   conflict_exists = "${var.redis_multi_shard && local.elasticache_name == "memcached" ? true : false}"
@@ -238,7 +238,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   maintenance_window            = "${var.preferred_maintenance_window}"
   subnet_group_name             = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
   automatic_failover_enabled    = "${local.is_t2 ? false : var.failover_enabled}"
-  number_cache_clusters         = "${local.redis_node_count}"
+  number_cache_clusters         = "${var.number_of_nodes}"
 
   tags = "${merge(
     map("Name", "${local.truncated_constructed_cluster_name}"),
