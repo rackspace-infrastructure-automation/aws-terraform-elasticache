@@ -6,10 +6,10 @@ This module creates Elasticache-Memcached, Elasticache-Redis, or Elasticache-Red
 
 ```
 module "elasticache_memcached" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.1"
-  cluster_name               = "test-memcached"
-  cluster_name_version       = ""
+  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.2"
+  cluster_name               = "memc-${random_string.r_string.result}"
   elasticache_engine_type    = "memcached14"
+  instance_class             = "cache.m4.large"
   subnets                    = ["${module.vpc.private_subnets}"]
   security_group_list        = ["${module.security_groups.elastic_cache_memcache_security_group_id}"]
   evictions_threshold        = 10
@@ -18,9 +18,16 @@ module "elasticache_memcached" {
   create_route53_record      = true
   internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
   internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
+
+  additional_tags = {
+    MyTag1 = "MyValue1"
+    MyTag2 = "MyValue2"
+    MyTag3 = "MyValue3"
+  }
 }
 ```
 Full working references are available at [examples](examples)
+
 
 ## Inputs
 
@@ -35,14 +42,14 @@ Full working references are available at [examples](examples)
 | cpu_high_threshold | (memcached, redis) The max CPU Usage % before generating an alarm. | string | `90` | no |
 | create_route53_record | (memcached, redis, redis multi shard) Specifies whether or not to create a route53 CNAME record for the configuration/primary endpoint. internal_zone_id, internal_zone_name, and internal_record_name must be provided if set to true. true or false. | string | `false` | no |
 | curr_connections_evaluations | (memcached, redis) The number of minutes current connections must remain above the specified threshold to generate an alarm. | string | `5` | no |
-| curr_connections_threshold | (memcached, redis) The max number of current connections before generating an alarm. | string | `` | no |
+| curr_connections_threshold | (memcached, redis) The max number of current connections before generating an alarm. NOTE: If this variable is not set, the connections alarm will not be provisioned. | string | `` | no |
 | elasticache_engine_type | (memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, redis326, redis28, redis40, redis3210, redis32 | string | - | yes |
 | environment | (memcached, redis, redis multi shard) Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test | string | `Development` | no |
 | evictions_evaluations | (memcached, redis) The number of minutes Evictions must remain above the specified threshold to generate an alarm. | string | `5` | no |
-| evictions_threshold | (memcached, redis) The max evictions before generating an alarm. | string | `` | no |
+| evictions_threshold | (memcached, redis) The max evictions before generating an alarm. NOTE: If this variable is not set, the evictions alarm will not be provisioned. | string | `` | no |
 | failover_enabled | (redis) Enable Multi-AZ Failover.  Failover is unsupported on cache.t2.* instance classes. This is hardcoded as true for Redis multi-shard. | string | `true` | no |
 | in_transit_encryption | (redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false | string | `false` | no |
-| instance_class | (memcached, redis, redis multi shard) The compute and memory capacity of the nodes within the ElastiCache cluster. Please see https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/CacheNodes.SupportedTypes.html for valid instance types. | string | `cache.m3.medium` | no |
+| instance_class | (memcached, redis, redis multi shard) The compute and memory capacity of the nodes within the ElastiCache cluster. Please see https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/CacheNodes.SupportedTypes.html for valid instance types. | string | - | yes |
 | internal_record_name | (memcached, redis, redis multi shard) Record Name for the new Resource Record in the Internal Hosted Zone | string | `` | no |
 | internal_zone_id | (memcached, redis, redis multi shard) The Route53 Internal Hosted Zone ID | string | `` | no |
 | internal_zone_name | (memcached, redis, redis multi shard) LD for Internal Hosted Zone | string | `` | no |
@@ -55,9 +62,9 @@ Full working references are available at [examples](examples)
 | replication_group_description | (redis, redis multi shard) Description of Replication Group | string | `Elasticache` | no |
 | security_group_list | (memcached, redis, redis multi shard) A list of EC2 security groups to assign to this resource. | list | - | yes |
 | snapshot_arn | (redis, redis multi shard) The S3 ARN of a snapshot to use for cluster creation.  Proper access to the S3 file must be granted prior to building instance.  See https://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/backups-seeding-redis.html#backups-seeding-redis-grant-access for details.  This parameter is ignored if a SnapshotName is provided. | string | `` | no |
-| snapshot_name | (redis, redis multi shard) The name of a snapshot to use for cluster creation. This property overrides any value assigned to SnapshotArn. | string | `` | no |
-| snapshot_retention_limit | (redis, redis multi shard) The number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to 0 disables automated backups. Snapshots are unsupported on cache.t2.* instance classes. | string | `7` | no |
-| snapshot_window | (redis, redis multi shard) The daily time range (in UTC) during which ElastiCache will begin taking a daily snapshot of your node group. Snapshots are unsupported on cache.t2.* instance classes. | string | `03:00-05:00` | no |
+| snapshot_name | (redis, redis multi shard) The name of a snapshot to use for cluster creation. This property overrides any value assigned to SnapshotArn. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes. | string | `` | no |
+| snapshot_retention_limit | (redis, redis multi shard) The number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to 0 disables automated backups. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes. | string | `7` | no |
+| snapshot_window | (redis, redis multi shard) The daily time range (in UTC) during which ElastiCache will begin taking a daily snapshot of your node group. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes. | string | `03:00-05:00` | no |
 | subnets | (memcached, redis, redis multi shard) List of subnets for use with this cache cluster | list | - | yes |
 | swap_usage_evaluations | (memcached) The number of minutes SwapUsage must remain above the specified threshold to generate an alarm | string | `5` | no |
 | swap_usage_threshold | (memcached) The max SwapUsage before generating an alarm | string | `52428800` | no |
