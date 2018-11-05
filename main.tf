@@ -51,9 +51,6 @@ locals {
   # Determine if this qualifies as a redis multi shard instance
   redis_multishard = "${local.elasticache_name == "redis" && var.redis_multi_shard ? true : false}"
 
-  # Default for number_of_nodes is 1, but at least 2 is required for redis non-multi-shard
-  redis_node_count = "${var.number_of_nodes < 2 ? 2 : var.number_of_nodes}"
-
   # Construct cluster naming with cluster version here
   # There is a 20 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.cluster_name,
   # var.cluster_name_version, and a hyphen. 19 is being used as a limit to take account the hyphen that will be used.
