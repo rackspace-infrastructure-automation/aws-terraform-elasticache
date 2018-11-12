@@ -62,7 +62,9 @@ locals {
   # So if the constructed cluster name is too long, var.cluster_name will trimmed off.
   substring_length = "${19 - length(var.cluster_name_version) > length(var.cluster_name) ? length(var.cluster_name) : 19 - length(var.cluster_name_version)}"
 
-  constructed_cluster_name = "${var.cluster_name_version != "" ? join("-", list(substr(var.cluster_name, 0, local.substring_length), var.cluster_name_version)) : substr(var.cluster_name, 0, local.substring_length)}"
+  constructed_cluster_name = "${var.cluster_name_version != "" ? replace(join("-", list(substr(var.cluster_name, 0, local.substring_length), var.cluster_name_version)), "/^-/", "") : substr(var.cluster_name, 0, local.substring_length)}"
+
+  truncated_constructed_cluster_name = "${substr(local.constructed_cluster_name, 0, min(20, length(local.constructed_cluster_name)))}"
 
   # For non-multi-shard redis or memcached, determine alarm counts
   redis_memcached_alarm_count = "${local.elasticache_name == "memcached" ? 1 : local.redis_node_count}"
@@ -175,7 +177,7 @@ resource "aws_cloudwatch_metric_alarm" "curr_connections_alarm" {
 
 resource "aws_elasticache_cluster" "cache_cluster" {
   count                = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
-  cluster_id           = "${local.constructed_cluster_name}"
+  cluster_id           = "${local.truncated_constructed_cluster_name}"
   engine               = "${local.elasticache_name}"
   parameter_group_name = "${aws_elasticache_parameter_group.elasticache_parameter_group.name}"
   num_cache_nodes      = "${var.number_of_nodes}"
@@ -188,7 +190,7 @@ resource "aws_elasticache_cluster" "cache_cluster" {
   subnet_group_name    = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
 
   tags = "${merge(
-    map("Name", "${local.constructed_cluster_name}"),
+    map("Name", "${local.truncated_constructed_cluster_name}"),
     local.tags,
     var.additional_tags
   )}"
@@ -228,7 +230,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   snapshot_name                 = "${local.snapshot_supported ? var.snapshot_name : ""}"
   snapshot_window               = "${local.snapshot_supported ? var.snapshot_window : ""}"
   at_rest_encryption_enabled    = "${local.encryption_supported ? var.at_rest_encrypted_disk : false}"
-  replication_group_id          = "${local.constructed_cluster_name}"
+  replication_group_id          = "${local.truncated_constructed_cluster_name}"
   security_group_ids            = ["${compact(var.security_group_list)}"]
   node_type                     = "${var.instance_class}"
   notification_topic_arn        = "${var.notification_topic}"
@@ -239,7 +241,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   number_cache_clusters         = "${local.redis_node_count}"
 
   tags = "${merge(
-    map("Name", "${local.constructed_cluster_name}"),
+    map("Name", "${local.truncated_constructed_cluster_name}"),
     local.tags,
     var.additional_tags
   )}"
@@ -261,7 +263,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   snapshot_name                 = "${var.snapshot_name}"
   snapshot_window               = "${var.snapshot_window}"
   at_rest_encryption_enabled    = "${local.encryption_supported ? var.at_rest_encrypted_disk : false}"
-  replication_group_id          = "${local.constructed_cluster_name}"
+  replication_group_id          = "${local.truncated_constructed_cluster_name}"
   security_group_ids            = ["${compact(var.security_group_list)}"]
   node_type                     = "${var.instance_class}"
   notification_topic_arn        = "${var.notification_topic}"
@@ -276,7 +278,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   }
 
   tags = "${merge(
-    map("Name", "${local.constructed_cluster_name}"),
+    map("Name", "${local.truncated_constructed_cluster_name}"),
     local.tags,
     var.additional_tags
   )}"

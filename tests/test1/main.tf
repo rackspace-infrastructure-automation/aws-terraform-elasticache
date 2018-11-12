@@ -112,6 +112,28 @@ module "elasticache_redis_2" {
   }
 }
 
+module "elasticache_redis_constructed_cluster_name_20_chars" {
+  source                  = "../../module"
+  cluster_name            = "this-is-twenty-chars"
+  cluster_name_version    = "this-is-twenty-chars"
+  elasticache_engine_type = "redis40"
+  instance_class          = "cache.t2.medium"
+  redis_multi_shard       = false
+  subnets                 = ["${module.vpc.private_subnets}"]
+  security_group_list     = ["${module.security_groups.elastic_cache_redis_security_group_id}"]
+}
+
+module "elasticache_redis_constructed_cluster_name_19_chars" {
+  source                  = "../../module"
+  cluster_name            = "this-is-only-19-ok"
+  cluster_name_version    = "this-is-only-19-ok"
+  elasticache_engine_type = "redis40"
+  instance_class          = "cache.t2.medium"
+  redis_multi_shard       = false
+  subnets                 = ["${module.vpc.private_subnets}"]
+  security_group_list     = ["${module.security_groups.elastic_cache_redis_security_group_id}"]
+}
+
 output "memcached_endpoint" {
   description = "Elasticache endpoint"
   value       = "${module.elasticache_memcached.elasticache_endpoint}"
