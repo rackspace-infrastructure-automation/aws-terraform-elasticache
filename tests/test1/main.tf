@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "random_string" "r_string" {
-  length  = 6
+  length  = 8
   lower   = true
   upper   = false
   number  = false
