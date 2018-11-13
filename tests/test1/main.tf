@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "random_string" "r_string" {
-  length  = 6
+  length  = 8
   lower   = true
   upper   = false
   number  = false
@@ -104,6 +104,10 @@ module "elasticache_redis_2" {
   internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
   evictions_threshold        = 10
   curr_connections_threshold = 500
+
+  # Test single-shard, single-node, no failover
+  number_of_nodes  = 1
+  failover_enabled = false
 
   additional_tags = {
     MyTag1 = "MyValue1"

@@ -51,9 +51,6 @@ locals {
   # Determine if this qualifies as a redis multi shard instance
   redis_multishard = "${local.elasticache_name == "redis" && var.redis_multi_shard ? true : false}"
 
-  # Default for number_of_nodes is 1, but at least 2 is required for redis non-multi-shard
-  redis_node_count = "${var.number_of_nodes < 2 ? 2 : var.number_of_nodes}"
-
   # Construct cluster naming with cluster version here
   # There is a 20 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.cluster_name,
   # var.cluster_name_version, and a hyphen. 19 is being used as a limit to take account the hyphen that will be used.
@@ -67,7 +64,7 @@ locals {
   truncated_constructed_cluster_name = "${substr(local.constructed_cluster_name, 0, min(20, length(local.constructed_cluster_name)))}"
 
   # For non-multi-shard redis or memcached, determine alarm counts
-  redis_memcached_alarm_count = "${local.elasticache_name == "memcached" ? 1 : local.redis_node_count}"
+  redis_memcached_alarm_count = "${local.elasticache_name == "memcached" ? 1 : var.number_of_nodes}"
 
   # If redis multi shard and memcached is specified, consider this a conflict to prevent resources from being created.
   conflict_exists = "${var.redis_multi_shard && local.elasticache_name == "memcached" ? true : false}"
@@ -238,7 +235,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   maintenance_window            = "${var.preferred_maintenance_window}"
   subnet_group_name             = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
   automatic_failover_enabled    = "${local.is_t2 ? false : var.failover_enabled}"
-  number_cache_clusters         = "${local.redis_node_count}"
+  number_cache_clusters         = "${var.number_of_nodes}"
 
   tags = "${merge(
     map("Name", "${local.truncated_constructed_cluster_name}"),
