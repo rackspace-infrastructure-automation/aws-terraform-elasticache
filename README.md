@@ -6,7 +6,7 @@ This module creates Elasticache-Memcached, Elasticache-Redis, or Elasticache-Red
 
 ```
 module "elasticache_memcached" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.2"
+  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
   cluster_name               = "memc-${random_string.r_string.result}"
   elasticache_engine_type    = "memcached14"
   instance_class             = "cache.m4.large"
