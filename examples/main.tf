@@ -12,7 +12,7 @@ resource "random_string" "r_string" {
 }
 
 module "vpc" {
-  source   = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.1"
+  source   = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.6"
   vpc_name = "ElastiCache-Test-VPC-1"
 }
 
@@ -24,14 +24,14 @@ module "internal_zone" {
 }
 
 module "security_groups" {
-  source        = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.4"
+  source        = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.5"
   resource_name = "ElastiCacheTestSG"
   vpc_id        = "${module.vpc.vpc_id}"
   environment   = "Development"
 }
 
 module "elasticache_memcached" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.2"
+  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
   cluster_name               = "memc-${random_string.r_string.result}"
   elasticache_engine_type    = "memcached14"
   instance_class             = "cache.m4.large"
@@ -52,7 +52,7 @@ module "elasticache_memcached" {
 }
 
 module "elasticache_redis_multi_shard" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.2"
+  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
   cluster_name            = "redms-${random_string.r_string.result}"
   elasticache_engine_type = "redis40"
   instance_class          = "cache.m4.large"
@@ -72,7 +72,7 @@ module "elasticache_redis_multi_shard" {
 }
 
 module "elasticache_redis_1" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.2"
+  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
   cluster_name            = "red-${random_string.r_string.result}-1"
   elasticache_engine_type = "redis40"
   instance_class          = "cache.t2.medium"
@@ -92,7 +92,7 @@ module "elasticache_redis_1" {
 }
 
 module "elasticache_redis_2" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.2"
+  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
   cluster_name               = "red-${random_string.r_string.result}-2"
   elasticache_engine_type    = "redis40"
   instance_class             = "cache.m4.large"
