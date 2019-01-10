@@ -1,3 +1,36 @@
+/**
+ *# aws-terraform-elasticache
+ *
+ *This module creates Elasticache-Memcached, Elasticache-Redis, or Elasticache-Redis Multi-Shard instances.
+ *
+ *## Basic Usage
+ *
+ *```
+ *module "elasticache_memcached" {
+ *  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
+ *  cluster_name               = "memc-${random_string.r_string.result}"
+ *  elasticache_engine_type    = "memcached14"
+ *  instance_class             = "cache.m4.large"
+ *  subnets                    = ["${module.vpc.private_subnets}"]
+ *  security_group_list        = ["${module.security_groups.elastic_cache_memcache_security_group_id}"]
+ *  evictions_threshold        = 10
+ *  curr_connections_threshold = 500
+ *  internal_record_name       = "memcachedconfig"
+ *  create_route53_record      = true
+ *  internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
+ *  internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
+ *
+ *  additional_tags = {
+ *    MyTag1 = "MyValue1"
+ *    MyTag2 = "MyValue2"
+ *    MyTag3 = "MyValue3"
+ *  }
+ *}
+ *```
+ *
+ * Full working references are available at [examples](examples)
+ */
+
 locals {
   elasticache_engine = {
     memcached14 = {
