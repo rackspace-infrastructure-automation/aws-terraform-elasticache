@@ -7,7 +7,7 @@
  *
  *```
  *module "elasticache_memcached" {
- *  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.5"
+ *  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
  *  cluster_name               = "memc-${random_string.r_string.result}"
  *  elasticache_engine_type    = "memcached14"
  *  instance_class             = "cache.m4.large"
@@ -146,59 +146,69 @@ resource "aws_route53_record" "internal_record_set_elasticache" {
 ###<\Common Resources>###
 
 ###<Elasticache Memcached and Redis non-multi-shard Shared Resources>###
+data "null_data_source" "alarm_dimensions" {
+  count = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
 
-resource "aws_cloudwatch_metric_alarm" "evictions_alarm" {
-  count               = "${!(local.redis_multishard) && !(local.conflict_exists) && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0}"
-  alarm_name          = "${local.redis_memcached_alarm_count > 1 ? "${var.cluster_name}-Node${count.index}EvictionsAlarm" : "${var.cluster_name}-EvictionsAlarm"}"
-  evaluation_periods  = "${var.evictions_evaluations}"
-  alarm_actions       = ["${compact(list(var.notification_topic))}"]
-  alarm_description   = "Evictions over ${var.evictions_threshold}"
-  namespace           = "AWS/Elasticache"
-  period              = "60"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  statistic           = "Average"
-  threshold           = "${var.evictions_threshold}"
-  metric_name         = "Evictions"
-
-  dimensions {
+  inputs = {
     CacheClusterId = "${element(coalescelist(aws_elasticache_cluster.cache_cluster.*.cluster_id, flatten(aws_elasticache_replication_group.redis_rep_group.*.member_clusters)), count.index)}"
   }
 }
 
-resource "aws_cloudwatch_metric_alarm" "cpu_utilization_alarm" {
-  count               = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
-  alarm_name          = "${local.redis_memcached_alarm_count > 1 ? "${var.cluster_name}-Node${count.index}CPUUtilizationAlarm" : "${var.cluster_name}-CPUUtilizationAlarm"}"
-  evaluation_periods  = "${var.cpu_high_evaluations}"
-  alarm_actions       = ["${compact(list(var.notification_topic))}"]
-  alarm_description   = "CPUUtilization over ${var.cpu_high_threshold}"
-  namespace           = "AWS/Elasticache"
-  period              = "60"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  statistic           = "Average"
-  threshold           = "${var.cpu_high_threshold}"
-  metric_name         = "CPUUtilization"
+module "evictions_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
 
-  dimensions {
-    CacheClusterId = "${element(coalescelist(aws_elasticache_cluster.cache_cluster.*.cluster_id, flatten(aws_elasticache_replication_group.redis_rep_group.*.member_clusters)), count.index)}"
-  }
+  alarm_count              = "${!(local.redis_multishard) && !(local.conflict_exists) && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0}"
+  alarm_description        = "Evictions over ${var.evictions_threshold}"
+  alarm_name               = "${var.cluster_name}-EvictionsAlarm"
+  customer_alarms_enabled  = true
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  dimensions               = "${data.null_data_source.alarm_dimensions.*.outputs}"
+  evaluation_periods       = "${var.evictions_evaluations}"
+  metric_name              = "Evictions"
+  namespace                = "AWS/ElastiCache"
+  notification_topic       = ["${var.notification_topic}"]
+  period                   = 60
+  rackspace_alarms_enabled = false
+  statistic                = "Average"
+  threshold                = "${var.evictions_threshold}"
 }
 
-resource "aws_cloudwatch_metric_alarm" "curr_connections_alarm" {
-  count               = "${!(local.redis_multishard) && !(local.conflict_exists) && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0}"
-  alarm_name          = "${local.redis_memcached_alarm_count > 1 ? "${var.cluster_name}-Node${count.index}CurrConnectionsAlarm" : "${var.cluster_name}-CurrConnectionsAlarm"}"
-  evaluation_periods  = "${var.curr_connections_evaluations}"
-  alarm_actions       = ["${compact(list(var.notification_topic))}"]
-  alarm_description   = "CurrConnections over ${var.curr_connections_threshold}"
-  namespace           = "AWS/Elasticache"
-  period              = "60"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  statistic           = "Average"
-  threshold           = "${var.curr_connections_threshold}"
-  metric_name         = "CurrConnections"
+module "cpu_utilization_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
 
-  dimensions {
-    CacheClusterId = "${element(coalescelist(aws_elasticache_cluster.cache_cluster.*.cluster_id, flatten(aws_elasticache_replication_group.redis_rep_group.*.member_clusters)), count.index)}"
-  }
+  alarm_count              = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
+  alarm_name               = "${var.cluster_name}-CPUUtilizationAlarm"
+  alarm_description        = "CPUUtilization over ${var.cpu_high_threshold}"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = "${data.null_data_source.alarm_dimensions.*.outputs}"
+  evaluation_periods       = "${var.cpu_high_evaluations}"
+  metric_name              = "CPUUtilization"
+  namespace                = "AWS/ElastiCache"
+  notification_topic       = ["${var.notification_topic}"]
+  period                   = 60
+  rackspace_alarms_enabled = false
+  statistic                = "Average"
+  threshold                = "${var.cpu_high_threshold}"
+}
+
+module "curr_connections_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
+
+  alarm_count              = "${!(local.redis_multishard) && !(local.conflict_exists) && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0}"
+  alarm_name               = "${var.cluster_name}-CurrConnectionsAlarm"
+  alarm_description        = "CurrConnections over ${var.curr_connections_threshold}"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  dimensions               = "${data.null_data_source.alarm_dimensions.*.outputs}"
+  evaluation_periods       = "${var.curr_connections_evaluations}"
+  metric_name              = "CurrConnections"
+  namespace                = "AWS/ElastiCache"
+  notification_topic       = ["${var.notification_topic}"]
+  period                   = 60
+  rackspace_alarms_enabled = false
+  statistic                = "Average"
+  threshold                = "${var.curr_connections_threshold}"
 }
 
 ###<\Elasticache Memcached and Redis non-multi-shard Shared Resources>###
@@ -226,22 +236,30 @@ resource "aws_elasticache_cluster" "cache_cluster" {
   )}"
 }
 
-resource "aws_cloudwatch_metric_alarm" "swap_usage_alarm" {
-  count               = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
-  alarm_name          = "${join("-", list("SwapUsageAlarm", var.cluster_name))}"
-  evaluation_periods  = "${var.swap_usage_evaluations}"
-  alarm_actions       = ["${compact(list(var.notification_topic))}"]
-  alarm_description   = "CacheCluster ${aws_elasticache_cluster.cache_cluster.cluster_id} SwapUsage over ${var.swap_usage_threshold}"
-  namespace           = "AWS/Elasticache"
-  period              = "60"
-  comparison_operator = "GreaterThanOrEqualToThreshold"
-  statistic           = "Average"
-  threshold           = "${var.swap_usage_threshold}"
-  metric_name         = "SwapUsage"
+locals {
+  memcache_cluster_id = "${element(concat(aws_elasticache_cluster.cache_cluster.*.cluster_id, list("")), 0)}"
+}
 
-  dimensions {
-    CacheClusterId = "${aws_elasticache_cluster.cache_cluster.cluster_id}"
-  }
+module "swap_usage_alarm" {
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
+
+  alarm_count              = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
+  alarm_description        = "CacheCluster ${local.memcache_cluster_id} SwapUsage over ${var.swap_usage_threshold}"
+  alarm_name               = "${var.cluster_name}-SwapUsageAlarm"
+  comparison_operator      = "GreaterThanOrEqualToThreshold"
+  customer_alarms_enabled  = true
+  evaluation_periods       = "${var.swap_usage_evaluations}"
+  metric_name              = "SwapUsage"
+  namespace                = "AWS/ElastiCache"
+  notification_topic       = ["${var.notification_topic}"]
+  period                   = 60
+  rackspace_alarms_enabled = false
+  statistic                = "Average"
+  threshold                = "${var.swap_usage_threshold}"
+
+  dimensions = [{
+    CacheClusterId = "${local.memcache_cluster_id}"
+  }]
 }
 
 ###<\Elasticache Memcached Resources>###
