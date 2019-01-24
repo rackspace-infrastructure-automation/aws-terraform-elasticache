@@ -116,10 +116,18 @@ module "elasticache_redis_2" {
   }
 }
 
+resource "random_string" "19_char_string" {
+  length  = 19
+  lower   = true
+  upper   = false
+  number  = false
+  special = false
+}
+
 module "elasticache_redis_constructed_cluster_name_20_chars" {
   source                  = "../../module"
-  cluster_name            = "this-is-twenty-chars"
-  cluster_name_version    = "this-is-twenty-chars"
+  cluster_name            = "${random_string.19_char_string.result}a"
+  cluster_name_version    = "${random_string.19_char_string.result}a"
   elasticache_engine_type = "redis40"
   instance_class          = "cache.t2.medium"
   redis_multi_shard       = false
@@ -129,8 +137,8 @@ module "elasticache_redis_constructed_cluster_name_20_chars" {
 
 module "elasticache_redis_constructed_cluster_name_19_chars" {
   source                  = "../../module"
-  cluster_name            = "this-is-only-19-ok"
-  cluster_name_version    = "this-is-only-19-ok"
+  cluster_name            = "${random_string.19_char_string.result}"
+  cluster_name_version    = "${random_string.19_char_string.result}"
   elasticache_engine_type = "redis40"
   instance_class          = "cache.t2.medium"
   redis_multi_shard       = false
