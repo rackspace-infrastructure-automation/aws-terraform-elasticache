@@ -4,26 +4,27 @@ This module creates Elasticache-Memcached, Elasticache-Redis, or Elasticache-Red
 
 ## Basic Usage
 
-```
+```HCL
 module "elasticache_memcached" {
- source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
- cluster_name               = "memc-${random_string.r_string.result}"
- elasticache_engine_type    = "memcached14"
- instance_class             = "cache.m4.large"
- subnets                    = ["${module.vpc.private_subnets}"]
- security_group_list        = ["${module.security_groups.elastic_cache_memcache_security_group_id}"]
- evictions_threshold        = 10
- curr_connections_threshold = 500
- internal_record_name       = "memcachedconfig"
- create_route53_record      = true
- internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
- internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
 
- additional_tags = {
-   MyTag1 = "MyValue1"
-   MyTag2 = "MyValue2"
-   MyTag3 = "MyValue3"
- }
+  cluster_name               = "memc-${random_string.name_suffix.result}"
+  create_route53_record      = true
+  curr_connections_threshold = 500
+  elasticache_engine_type    = "memcached14"
+  evictions_threshold        = 10
+  instance_class             = "cache.m4.large"
+  internal_record_name       = "memcachedconfig"
+  internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
+  internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
+  security_group_list        = ["${module.security_groups.elastic_cache_memcache_security_group_id}"]
+  subnets                    = ["${module.vpc.private_subnets}"]
+
+  additional_tags = {
+    MyTag1 = "MyValue1"
+    MyTag2 = "MyValue2"
+    MyTag3 = "MyValue3"
+  }
 }
 ```
 
@@ -34,7 +35,7 @@ Full working references are available at [examples](examples)
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | additional\_tags | (memcached, redis, redis multi shard) Additional tags to be added to the Elasticache resources. Please see examples directory in this repo for examples. | map | `<map>` | no |
-| at\_rest\_encrypted\_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false | string | `"false"` | no |
+| at\_rest\_encrypted\_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`. | string | `"false"` | no |
 | cache\_cluster\_port | (memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211 | string | `""` | no |
 | cluster\_name | (memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints | string | n/a | yes |
 | cluster\_name\_version | (memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints | string | `"v00"` | no |
@@ -43,7 +44,7 @@ Full working references are available at [examples](examples)
 | create\_route53\_record | (memcached, redis, redis multi shard) Specifies whether or not to create a route53 CNAME record for the configuration/primary endpoint. internal_zone_id, internal_zone_name, and internal_record_name must be provided if set to true. true or false. | string | `"false"` | no |
 | curr\_connections\_evaluations | (memcached, redis) The number of minutes current connections must remain above the specified threshold to generate an alarm. | string | `"5"` | no |
 | curr\_connections\_threshold | (memcached, redis) The max number of current connections before generating an alarm. NOTE: If this variable is not set, the connections alarm will not be provisioned. | string | `""` | no |
-| elasticache\_engine\_type | (memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, redis326, redis28, redis40, redis3210, redis32 | string | n/a | yes |
+| elasticache\_engine\_type | (memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, redis28, redis32, redis326, redis3210, redis40, redis50 | string | n/a | yes |
 | environment | (memcached, redis, redis multi shard) Application environment for which this network is being created. Preferred value are Development, Integration, PreProduction, Production, QA, Staging, or Test | string | `"Development"` | no |
 | evictions\_evaluations | (memcached, redis) The number of minutes Evictions must remain above the specified threshold to generate an alarm. | string | `"5"` | no |
 | evictions\_threshold | (memcached, redis) The max evictions before generating an alarm. NOTE: If this variable is not set, the evictions alarm will not be provisioned. | string | `""` | no |

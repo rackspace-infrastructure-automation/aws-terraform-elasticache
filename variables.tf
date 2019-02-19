@@ -30,7 +30,7 @@ variable "create_route53_record" {
 }
 
 variable "elasticache_engine_type" {
-  description = "(memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, redis326, redis28, redis40, redis3210, redis32"
+  description = "(memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, redis28, redis32, redis326, redis3210, redis40, redis50"
   type        = "string"
 }
 
@@ -172,7 +172,7 @@ variable "snapshot_window" {
 }
 
 variable "at_rest_encrypted_disk" {
-  description = "(redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false"
+  description = "(redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`."
   default     = false
   type        = "string"
 }
