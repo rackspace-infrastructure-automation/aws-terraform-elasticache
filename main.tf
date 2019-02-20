@@ -1,31 +1,32 @@
 /**
- *# aws-terraform-elasticache
+ * # aws-terraform-elasticache
  *
- *This module creates Elasticache-Memcached, Elasticache-Redis, or Elasticache-Redis Multi-Shard instances.
+ * This module creates Elasticache-Memcached, Elasticache-Redis, or Elasticache-Redis Multi-Shard instances.
  *
- *## Basic Usage
+ * ## Basic Usage
  *
- *```
- *module "elasticache_memcached" {
- *  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
- *  cluster_name               = "memc-${random_string.r_string.result}"
- *  elasticache_engine_type    = "memcached14"
- *  instance_class             = "cache.m4.large"
- *  subnets                    = ["${module.vpc.private_subnets}"]
- *  security_group_list        = ["${module.security_groups.elastic_cache_memcache_security_group_id}"]
- *  evictions_threshold        = 10
- *  curr_connections_threshold = 500
- *  internal_record_name       = "memcachedconfig"
- *  create_route53_record      = true
- *  internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
- *  internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
+ * ```HCL
+ * module "elasticache_memcached" {
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
  *
- *  additional_tags = {
- *    MyTag1 = "MyValue1"
- *    MyTag2 = "MyValue2"
- *    MyTag3 = "MyValue3"
- *  }
- *}
+ *   cluster_name               = "memc-${random_string.name_suffix.result}"
+ *   create_route53_record      = true
+ *   curr_connections_threshold = 500
+ *   elasticache_engine_type    = "memcached14"
+ *   evictions_threshold        = 10
+ *   instance_class             = "cache.m4.large"
+ *   internal_record_name       = "memcachedconfig"
+ *   internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
+ *   internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
+ *   security_group_list        = ["${module.security_groups.elastic_cache_memcache_security_group_id}"]
+ *   subnets                    = ["${module.vpc.private_subnets}"]
+ *
+ *   additional_tags = {
+ *     MyTag1 = "MyValue1"
+ *     MyTag2 = "MyValue2"
+ *     MyTag3 = "MyValue3"
+ *   }
+ * }
  *```
  *
  * Full working references are available at [examples](examples)
@@ -40,13 +41,6 @@ locals {
       encryption_supported = false
     }
 
-    redis326 = {
-      version              = "3.2.6"
-      name                 = "redis"
-      family               = "redis3.2"
-      encryption_supported = true
-    }
-
     redis28 = {
       version              = "2.8.24"
       name                 = "redis"
@@ -54,10 +48,17 @@ locals {
       encryption_supported = false
     }
 
-    redis40 = {
-      version              = "4.0.10"
+    redis32 = {
+      version              = "3.2.4"
       name                 = "redis"
-      family               = "redis4.0"
+      family               = "redis3.2"
+      encryption_supported = false
+    }
+
+    redis326 = {
+      version              = "3.2.6"
+      name                 = "redis"
+      family               = "redis3.2"
       encryption_supported = true
     }
 
@@ -68,11 +69,18 @@ locals {
       encryption_supported = false
     }
 
-    redis32 = {
-      version              = "3.2.4"
+    redis40 = {
+      version              = "4.0.10"
       name                 = "redis"
-      family               = "redis3.2"
-      encryption_supported = false
+      family               = "redis4.0"
+      encryption_supported = true
+    }
+
+    redis50 = {
+      version              = "5.0.0"
+      name                 = "redis"
+      family               = "redis5.0"
+      encryption_supported = true
     }
   }
 

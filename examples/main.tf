@@ -52,9 +52,9 @@ module "elasticache_memcached" {
 }
 
 module "elasticache_redis_multi_shard" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
+  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
   cluster_name            = "redms-${random_string.r_string.result}"
-  elasticache_engine_type = "redis40"
+  elasticache_engine_type = "redis50"
   instance_class          = "cache.m4.large"
   redis_multi_shard       = true
   subnets                 = ["${module.vpc.private_subnets}"]
@@ -72,9 +72,9 @@ module "elasticache_redis_multi_shard" {
 }
 
 module "elasticache_redis_1" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
+  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
   cluster_name            = "red-${random_string.r_string.result}-1"
-  elasticache_engine_type = "redis40"
+  elasticache_engine_type = "redis50"
   instance_class          = "cache.t2.medium"
   redis_multi_shard       = false
   subnets                 = ["${module.vpc.private_subnets}"]
@@ -92,9 +92,9 @@ module "elasticache_redis_1" {
 }
 
 module "elasticache_redis_2" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
+  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
   cluster_name               = "red-${random_string.r_string.result}-2"
-  elasticache_engine_type    = "redis40"
+  elasticache_engine_type    = "redis50"
   instance_class             = "cache.m4.large"
   redis_multi_shard          = false
   subnets                    = ["${module.vpc.private_subnets}"]
