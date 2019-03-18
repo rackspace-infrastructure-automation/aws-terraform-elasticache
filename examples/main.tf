@@ -1,10 +1,10 @@
 provider "aws" {
-  version = "~> 1.2"
-  region  = "eu-west-1"
+  version = "~> 2.2"
+  region  = "us-west-2"
 }
 
 resource "random_string" "r_string" {
-  length  = 6
+  length  = 8
   lower   = true
   upper   = false
   number  = false
@@ -12,13 +12,21 @@ resource "random_string" "r_string" {
 }
 
 module "vpc" {
-  source   = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.6"
+  source   = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.9"
   vpc_name = "ElastiCache-Test-VPC-1"
 }
 
+resource "random_string" "zone_name" {
+  length  = 10
+  lower   = true
+  upper   = false
+  number  = false
+  special = false
+}
+
 module "internal_zone" {
-  source        = "git@github.com:rackspace-infrastructure-automation/aws-terraform-route53_internal_zone?ref=v.0.0.1"
-  zone_name     = "example.com"
+  source        = "git@github.com:rackspace-infrastructure-automation/aws-terraform-route53_internal_zone?ref=v0.0.3"
+  zone_name     = "${random_string.zone_name.result}.com"
   environment   = "Development"
   target_vpc_id = "${module.vpc.vpc_id}"
 }
@@ -31,7 +39,7 @@ module "security_groups" {
 }
 
 module "elasticache_memcached" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.6"
+  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
   cluster_name               = "memc-${random_string.r_string.result}"
   elasticache_engine_type    = "memcached14"
   instance_class             = "cache.m4.large"
@@ -79,7 +87,7 @@ module "elasticache_redis_1" {
   redis_multi_shard       = false
   subnets                 = ["${module.vpc.private_subnets}"]
   security_group_list     = ["${module.security_groups.elastic_cache_redis_security_group_id}"]
-  internal_record_name    = "redisconfig"
+  internal_record_name    = "redisconfigone"
   create_route53_record   = true
   internal_zone_id        = "${module.internal_zone.internal_hosted_zone_id}"
   internal_zone_name      = "${module.internal_zone.internal_hosted_name}"
@@ -99,16 +107,50 @@ module "elasticache_redis_2" {
   redis_multi_shard          = false
   subnets                    = ["${module.vpc.private_subnets}"]
   security_group_list        = ["${module.security_groups.elastic_cache_redis_security_group_id}"]
-  internal_record_name       = "redisconfig"
+  internal_record_name       = "redisconfigtwo"
   create_route53_record      = true
   internal_zone_id           = "${module.internal_zone.internal_hosted_zone_id}"
   internal_zone_name         = "${module.internal_zone.internal_hosted_name}"
   evictions_threshold        = 10
   curr_connections_threshold = 500
 
+  # Test single-shard, single-node, no failover
+  number_of_nodes  = 1
+  failover_enabled = false
+
   additional_tags = {
     MyTag1 = "MyValue1"
     MyTag2 = "MyValue2"
     MyTag3 = "MyValue3"
   }
+}
+
+resource "random_string" "19_char_string" {
+  length  = 19
+  lower   = true
+  upper   = false
+  number  = false
+  special = false
+}
+
+module "elasticache_redis_constructed_cluster_name_20_chars" {
+  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
+  cluster_name            = "${random_string.19_char_string.result}a"
+  cluster_name_version    = "${random_string.19_char_string.result}a"
+  elasticache_engine_type = "redis50"
+  instance_class          = "cache.t2.medium"
+  redis_multi_shard       = false
+  subnets                 = ["${module.vpc.private_subnets}"]
+  security_group_list     = ["${module.security_groups.elastic_cache_redis_security_group_id}"]
+}
+
+module "elasticache_redis_constructed_cluster_name_19_chars" {
+  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
+  cluster_name            = "${random_string.19_char_string.result}"
+  cluster_name_version    = "${random_string.19_char_string.result}"
+  elasticache_engine_type = "redis50"
+  instance_class          = "cache.t2.medium"
+  redis_multi_shard       = false
+  subnets                 = ["${module.vpc.private_subnets}"]
+  security_group_list     = ["${module.security_groups.elastic_cache_redis_security_group_id}"]
 }
