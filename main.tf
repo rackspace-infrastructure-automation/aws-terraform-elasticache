@@ -82,6 +82,13 @@ locals {
       family               = "redis5.0"
       encryption_supported = true
     }
+
+    redis503 = {
+      version              = "5.0.3"
+      name                 = "redis"
+      family               = "redis5.0"
+      encryption_supported = true
+    }
   }
 
   elasticache_family   = "${lookup(local.elasticache_engine["${var.elasticache_engine_type}"], "family")}"
