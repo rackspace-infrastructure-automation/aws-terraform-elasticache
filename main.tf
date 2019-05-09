@@ -41,6 +41,41 @@ locals {
       encryption_supported = false
     }
 
+    redis286 = {
+      version              = "2.8.6"
+      name                 = "redis"
+      family               = "redis2.8"
+      encryption_supported = false
+    }
+
+    redis2819 = {
+      version              = "2.8.19"
+      name                 = "redis"
+      family               = "redis2.8"
+      encryption_supported = false
+    }
+
+    redis2821 = {
+      version              = "2.8.21"
+      name                 = "redis"
+      family               = "redis2.8"
+      encryption_supported = false
+    }
+
+    redis2822 = {
+      version              = "2.8.22"
+      name                 = "redis"
+      family               = "redis2.8"
+      encryption_supported = false
+    }
+
+    redis2823 = {
+      version              = "2.8.23"
+      name                 = "redis"
+      family               = "redis2.8"
+      encryption_supported = false
+    }
+
     redis28 = {
       version              = "2.8.24"
       name                 = "redis"
