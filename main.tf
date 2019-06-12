@@ -7,7 +7,7 @@
  *
  * ```HCL
  * module "elasticache_memcached" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.7"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.10"
  *
  *   cluster_name               = "memc-${random_string.name_suffix.result}"
  *   create_route53_record      = true
@@ -120,6 +120,13 @@ locals {
 
     redis503 = {
       version              = "5.0.3"
+      name                 = "redis"
+      family               = "redis5.0"
+      encryption_supported = true
+    }
+
+    redis504 = {
+      version              = "5.0.4"
       name                 = "redis"
       family               = "redis5.0"
       encryption_supported = true
