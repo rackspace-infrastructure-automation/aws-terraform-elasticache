@@ -187,7 +187,7 @@ variable "snapshot_retention_limit" {
 
 ###<Redis non multi shard Parameters>###
 variable "failover_enabled" {
-  description = "(redis) Enable Multi-AZ Failover. This is hardcoded as true for Redis multi-shard."
+  description = "(redis) Enable Multi-AZ Failover. Failover is unsupported on the cache.t1.micro instance class. This is hardcoded as true for Redis multi-shard."
   default     = true
   type        = "string"
 }

@@ -336,7 +336,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   port                          = "${local.set_port}"
   maintenance_window            = "${var.preferred_maintenance_window}"
   subnet_group_name             = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
-  automatic_failover_enabled    = "${var.number_of_nodes >= 2 ? var.failover_enabled : false}"
+  automatic_failover_enabled    = "${var.instance_class != "cache.t1.micro" && var.number_of_nodes >= 2 ? var.failover_enabled : false}"
   number_cache_clusters         = "${var.number_of_nodes}"
 
   tags = "${merge(
