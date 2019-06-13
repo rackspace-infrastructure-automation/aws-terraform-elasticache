@@ -132,7 +132,7 @@ variable "evictions_threshold" {
 }
 
 variable "number_of_nodes" {
-  description = "(memcached, redis) The number of cache nodes within the ElastiCache cluster"
+  description = "(memcached, redis) The number of cache nodes within the ElastiCache cluster. This number must be grearter or equal 2 to enable automatic failover."
   default     = 1
   type        = "string"
 }
@@ -160,13 +160,13 @@ variable "snapshot_arn" {
 }
 
 variable "snapshot_name" {
-  description = "(redis, redis multi shard) The name of a snapshot to use for cluster creation. This property overrides any value assigned to SnapshotArn. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes."
+  description = "(redis, redis multi shard) The name of a snapshot to use for cluster creation. This property overrides any value assigned to SnapshotArn. Snapshots are unsupported on cache.t1.micro instance class."
   default     = ""
   type        = "string"
 }
 
 variable "snapshot_window" {
-  description = "(redis, redis multi shard) The daily time range (in UTC) during which ElastiCache will begin taking a daily snapshot of your node group. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes."
+  description = "(redis, redis multi shard) The daily time range (in UTC) during which ElastiCache will begin taking a daily snapshot of your node group. Snapshots are unsupported on cache.t1.micro instance class."
   default     = "03:00-05:00"
   type        = "string"
 }
@@ -178,7 +178,7 @@ variable "at_rest_encrypted_disk" {
 }
 
 variable "snapshot_retention_limit" {
-  description = "(redis, redis multi shard) The number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to 0 disables automated backups. Snapshots are unsupported on cache.t1.micro and cache.t2.* instance classes."
+  description = "(redis, redis multi shard) The number of days for which automated backups are retained. Setting this parameter to a positive number enables backups. Setting this parameter to 0 disables automated backups. Snapshots are unsupported on cache.t1.micro instance class."
   default     = 7
   type        = "string"
 }
@@ -187,7 +187,7 @@ variable "snapshot_retention_limit" {
 
 ###<Redis non multi shard Parameters>###
 variable "failover_enabled" {
-  description = "(redis) Enable Multi-AZ Failover.  Failover is unsupported on cache.t2.* instance classes. This is hardcoded as true for Redis multi-shard."
+  description = "(redis) Enable Multi-AZ Failover. Failover is unsupported on the cache.t1.micro instance class. This is hardcoded as true for Redis multi-shard."
   default     = true
   type        = "string"
 }

@@ -7,7 +7,7 @@
  *
  * ```HCL
  * module "elasticache_memcached" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.10"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
  *
  *   cluster_name               = "memc-${random_string.name_suffix.result}"
  *   create_route53_record      = true
@@ -163,13 +163,7 @@ locals {
   default_port = "${local.elasticache_name == "memcached" ? "11211" : "6379"}"
   set_port     = "${var.cache_cluster_port != "" ? var.cache_cluster_port : local.default_port}"
 
-  # Determine if Instance Class is T2 instance. This condition is being checked since automatic failover
-  # is not supported on t2 instances for elasticache redis replication groups.
-  instance_prefix = "${element(split(".",var.instance_class), 1)}"
-
-  is_t2 = "${local.instance_prefix == "t2" ? true : false}"
-
-  snapshot_supported = "${local.instance_prefix == "t2" || var.instance_class == "cache.t1.micro" ? false : true}"
+  snapshot_supported = "${var.instance_class == "cache.t1.micro" ? false : true}"
 
   tags = {
     Environment     = "${var.environment}"
@@ -342,7 +336,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   port                          = "${local.set_port}"
   maintenance_window            = "${var.preferred_maintenance_window}"
   subnet_group_name             = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
-  automatic_failover_enabled    = "${local.is_t2 ? false : var.failover_enabled}"
+  automatic_failover_enabled    = "${var.instance_class != "cache.t1.micro" && var.number_of_nodes >= 2 ? var.failover_enabled : false}"
   number_cache_clusters         = "${var.number_of_nodes}"
 
   tags = "${merge(
