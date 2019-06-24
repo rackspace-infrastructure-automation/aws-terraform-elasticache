@@ -29,6 +29,12 @@ module "elasticache_memcached" {
 ```
 
 Full working references are available at [examples](examples)
+## Other TF Modules Used
+Using [aws-terraform-cloudwatch_alarm](https://github.com/rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm) to create the following CloudWatch Alarms:
+	- evictions_alarm
+	- cpu_utilization_alarm
+	- curr_connections_alarm
+	- swap_usage_alarm
 
 ## Inputs
 
