@@ -12,7 +12,8 @@ resource "random_string" "r_string" {
 }
 
 module "vpc" {
-  source   = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.9"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-vpc_basenetwork?ref=v0.0.9"
+
   vpc_name = "ElastiCache-Test-VPC-1"
 }
 
@@ -25,21 +26,24 @@ resource "random_string" "zone_name" {
 }
 
 module "internal_zone" {
-  source        = "git@github.com:rackspace-infrastructure-automation/aws-terraform-route53_internal_zone?ref=v0.0.3"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-route53_internal_zone?ref=v0.0.3"
+
   zone_name     = "${random_string.zone_name.result}.com"
   environment   = "Development"
   target_vpc_id = "${module.vpc.vpc_id}"
 }
 
 module "security_groups" {
-  source        = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.5"
+
   resource_name = "ElastiCacheTestSG"
   vpc_id        = "${module.vpc.vpc_id}"
   environment   = "Development"
 }
 
 module "elasticache_memcached" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
+
   cluster_name               = "memc-${random_string.r_string.result}"
   elasticache_engine_type    = "memcached14"
   instance_class             = "cache.m4.large"
@@ -60,7 +64,8 @@ module "elasticache_memcached" {
 }
 
 module "elasticache_redis_multi_shard" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
+
   cluster_name            = "redms-${random_string.r_string.result}"
   elasticache_engine_type = "redis50"
   instance_class          = "cache.m4.large"
@@ -80,7 +85,8 @@ module "elasticache_redis_multi_shard" {
 }
 
 module "elasticache_redis_1" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
+
   cluster_name            = "red-${random_string.r_string.result}-1"
   elasticache_engine_type = "redis50"
   instance_class          = "cache.t2.medium"
@@ -100,7 +106,8 @@ module "elasticache_redis_1" {
 }
 
 module "elasticache_redis_2" {
-  source                     = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
+
   cluster_name               = "red-${random_string.r_string.result}-2"
   elasticache_engine_type    = "redis50"
   instance_class             = "cache.m4.large"
@@ -134,7 +141,8 @@ resource "random_string" "19_char_string" {
 }
 
 module "elasticache_redis_constructed_cluster_name_20_chars" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
+
   cluster_name            = "${random_string.19_char_string.result}a"
   cluster_name_version    = "${random_string.19_char_string.result}a"
   elasticache_engine_type = "redis50"
@@ -145,7 +153,8 @@ module "elasticache_redis_constructed_cluster_name_20_chars" {
 }
 
 module "elasticache_redis_constructed_cluster_name_19_chars" {
-  source                  = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
+
   cluster_name            = "${random_string.19_char_string.result}"
   cluster_name_version    = "${random_string.19_char_string.result}"
   elasticache_engine_type = "redis50"

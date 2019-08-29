@@ -7,7 +7,7 @@
  *
  * ```HCL
  * module "elasticache_memcached" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.11"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.12"
  *
  *   cluster_name               = "memc-${random_string.name_suffix.result}"
  *   create_route53_record      = true
@@ -44,6 +44,13 @@ locals {
       version              = "1.4.34"
       name                 = "memcached"
       family               = "memcached1.4"
+      encryption_supported = false
+    }
+
+    memcached1510 = {
+      version              = "1.5.10"
+      name                 = "memcached"
+      family               = "memcached1.5"
       encryption_supported = false
     }
 
@@ -180,19 +187,22 @@ locals {
 ###<Common Resources>###
 
 resource "aws_elasticache_subnet_group" "elasticache_subnet_group" {
-  count      = "${local.conflict_exists ? 0 : 1}"
+  count = "${local.conflict_exists ? 0 : 1}"
+
   name       = "${var.cluster_name}-subnetgroup"
   subnet_ids = ["${var.subnets}"]
 }
 
 resource "aws_elasticache_parameter_group" "elasticache_parameter_group" {
-  count  = "${local.redis_multishard || local.conflict_exists ? 0 : 1}"
+  count = "${local.redis_multishard || local.conflict_exists ? 0 : 1}"
+
   name   = "${var.cluster_name}-ecparamgroup"
   family = "${local.elasticache_family}"
 }
 
 resource "aws_route53_record" "internal_record_set_elasticache" {
-  count   = "${var.create_route53_record && !(local.conflict_exists) ? 1 : 0}"
+  count = "${var.create_route53_record && !(local.conflict_exists) ? 1 : 0}"
+
   name    = "${var.internal_record_name}.${var.internal_zone_name}"
   type    = "CNAME"
   zone_id = "${var.internal_zone_id}"
@@ -273,7 +283,8 @@ module "curr_connections_alarm" {
 ###<Elasticache Memcached Resources>###
 
 resource "aws_elasticache_cluster" "cache_cluster" {
-  count                = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
+  count = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
+
   cluster_id           = "${local.truncated_constructed_cluster_name}"
   engine               = "${local.elasticache_name}"
   parameter_group_name = "${aws_elasticache_parameter_group.elasticache_parameter_group.name}"
@@ -324,7 +335,8 @@ module "swap_usage_alarm" {
 ###<Redis non-multi-shard Resources>###
 
 resource "aws_elasticache_replication_group" "redis_rep_group" {
-  count                         = "${local.elasticache_name != "memcached" && !(local.redis_multishard) ? 1 : 0}"
+  count = "${local.elasticache_name != "memcached" && !(local.redis_multishard) ? 1 : 0}"
+
   replication_group_description = "${var.replication_group_description}"
   engine                        = "${local.elasticache_name}"
   engine_version                = "${local.elasticache_version}"
@@ -357,7 +369,8 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
 ###<Redis multi-shard Resources>###
 
 resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
-  count                         = "${local.redis_multishard && local.elasticache_name != "memcached" ? 1 : 0}"
+  count = "${local.redis_multishard && local.elasticache_name != "memcached" ? 1 : 0}"
+
   replication_group_description = "${var.replication_group_description}"
   engine                        = "${local.elasticache_name}"
   engine_version                = "${local.elasticache_version}"
@@ -390,7 +403,8 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
 }
 
 resource "aws_elasticache_parameter_group" "redis_multi_shard_param_group" {
-  count  = "${local.redis_multishard ? 1 : 0}"
+  count = "${local.redis_multishard ? 1 : 0}"
+
   name   = "${var.cluster_name}-ecparamgroup"
   family = "${local.elasticache_family}"
 
