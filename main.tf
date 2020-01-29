@@ -160,24 +160,19 @@ locals {
   # Since there is a limit, we must determine how much of the provided input to var.cluster_name can be used.
   # Total length is (full length of var.cluster_name_version) + (length of hyphen) + (substring of var.cluster_name_version)
   # So if the constructed cluster name is too long, var.cluster_name will trimmed off.
-  substring_length = 19 - length(var.cluster_name_version) > length(var.cluster_name) ? length(var.cluster_name) : 19 - length(var.cluster_name_version)
 
-  constructed_cluster_name = var.cluster_name_version != "" ? replace(
-    join(
-      "-",
-      [
-        substr(var.cluster_name, 0, local.substring_length),
-        var.cluster_name_version,
-      ],
+  substring_length         = min(19 - length(var.cluster_name_version), length(var.cluster_name))
+  name_parts               = compact([substr(var.cluster_name, 0, local.substring_length), var.cluster_name_version])
+  constructed_cluster_name = join("-", local.name_parts)
+
+  truncated_constructed_cluster_name = replace(
+    substr(
+      local.constructed_cluster_name,
+      0,
+      min(20, length(local.constructed_cluster_name)),
     ),
-    "/^-/",
+    "/-$/",
     "",
-  ) : substr(var.cluster_name, 0, local.substring_length)
-
-  truncated_constructed_cluster_name = substr(
-    local.constructed_cluster_name,
-    0,
-    min(20, length(local.constructed_cluster_name)),
   )
 
   # For non-multi-shard redis or memcached, determine alarm counts
@@ -192,10 +187,14 @@ locals {
 
   snapshot_supported = var.instance_class == "cache.t1.micro" ? false : true
 
-  tags = {
-    Environment     = var.environment
-    ServiceProvider = "Rackspace"
-  }
+  tags = merge(
+    var.additional_tags,
+    {
+      Environment     = var.environment
+      ServiceProvider = "Rackspace"
+      Name            = local.truncated_constructed_cluster_name
+    }
+  )
 }
 
 ###<Common Resources>###
@@ -221,22 +220,12 @@ resource "aws_route53_record" "internal_record_set_elasticache" {
   type    = "CNAME"
   zone_id = var.internal_zone_id
   ttl     = "300"
-  # TF-UPGRADE-TODO: In Terraform v0.10 and earlier, it was sometimes necessary to
-  # force an interpolation expression to be interpreted as a list by wrapping it
-  # in an extra set of list brackets. That form was supported for compatibility in
-  # v0.11, but is no longer supported in Terraform v0.12.
-  #
-  # If the expression in the following list itself returns a list, remove the
-  # brackets to avoid interpretation as a list of lists. If the expression
-  # returns a single list item then leave it as-is and remove this TODO comment.
-  records = [element(
-    coalescelist(
-      aws_elasticache_replication_group.redis_rep_group.*.primary_endpoint_address,
-      aws_elasticache_replication_group.redis_multi_shard_rep_group.*.configuration_endpoint_address,
-      aws_elasticache_cluster.cache_cluster.*.configuration_endpoint,
-    ),
-    0,
-  )]
+
+  records = coalescelist(
+    aws_elasticache_replication_group.redis_rep_group.*.primary_endpoint_address,
+    aws_elasticache_replication_group.redis_multi_shard_rep_group.*.configuration_endpoint_address,
+    aws_elasticache_cluster.cache_cluster.*.configuration_endpoint,
+  )
 }
 
 ###<\Common Resources>###
@@ -249,9 +238,7 @@ data "null_data_source" "alarm_dimensions" {
     CacheClusterId = element(
       coalescelist(
         aws_elasticache_cluster.cache_cluster.*.cluster_id,
-        flatten(
-          aws_elasticache_replication_group.redis_rep_group.*.member_clusters,
-        ),
+        flatten(aws_elasticache_replication_group.redis_rep_group.*.member_clusters),
       ),
       count.index,
     )
@@ -259,7 +246,7 @@ data "null_data_source" "alarm_dimensions" {
 }
 
 module "evictions_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0
   alarm_description        = "Evictions over ${var.evictions_threshold}"
@@ -278,7 +265,7 @@ module "evictions_alarm" {
 }
 
 module "cpu_utilization_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists ? local.redis_memcached_alarm_count : 0
   alarm_name               = "${var.cluster_name}-CPUUtilizationAlarm"
@@ -297,7 +284,7 @@ module "cpu_utilization_alarm" {
 }
 
 module "curr_connections_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0
   alarm_name               = "${var.cluster_name}-CurrConnectionsAlarm"
@@ -334,13 +321,7 @@ resource "aws_elasticache_cluster" "cache_cluster" {
   maintenance_window   = var.preferred_maintenance_window
   subnet_group_name    = aws_elasticache_subnet_group.elasticache_subnet_group[0].name
 
-  tags = merge(
-    {
-      "Name" = local.truncated_constructed_cluster_name
-    },
-    local.tags,
-    var.additional_tags,
-  )
+  tags = local.tags
 }
 
 locals {
@@ -351,7 +332,7 @@ locals {
 }
 
 module "swap_usage_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
 
   alarm_count              = local.elasticache_name == "memcached" && false == local.conflict_exists ? 1 : 0
   alarm_description        = "CacheCluster ${local.memcache_cluster_id} SwapUsage over ${var.swap_usage_threshold}"
@@ -401,13 +382,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   automatic_failover_enabled    = var.instance_class != "cache.t1.micro" && var.number_of_nodes >= 2 ? var.failover_enabled : false
   number_cache_clusters         = var.number_of_nodes
 
-  tags = merge(
-    {
-      "Name" = local.truncated_constructed_cluster_name
-    },
-    local.tags,
-    var.additional_tags,
-  )
+  tags = local.tags
 }
 
 ###</Redis non-multi-shard Resources>###
@@ -441,13 +416,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
     replicas_per_node_group = var.number_of_read_replicas_per_shard
   }
 
-  tags = merge(
-    {
-      "Name" = local.truncated_constructed_cluster_name
-    },
-    local.tags,
-    var.additional_tags,
-  )
+  tags = local.tags
 }
 
 resource "aws_elasticache_parameter_group" "redis_multi_shard_param_group" {
