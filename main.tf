@@ -60,6 +60,12 @@ locals {
       family               = "memcached1.5"
       encryption_supported = false
     }
+    memcached1516 = {
+      version              = "1.5.16"
+      name                 = "memcached"
+      family               = "memcached1.5"
+      encryption_supported = false
+    }
     redis286 = {
       version              = "2.8.6"
       name                 = "redis"
@@ -140,6 +146,12 @@ locals {
     }
     redis505 = {
       version              = "5.0.5"
+      name                 = "redis"
+      family               = "redis5.0"
+      encryption_supported = true
+    }
+    redis506 = {
+      version              = "5.0.6"
       name                 = "redis"
       family               = "redis5.0"
       encryption_supported = true

@@ -58,7 +58,7 @@ variable "curr_connections_threshold" {
 }
 
 variable "elasticache_engine_type" {
-  description = "(memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, memcached1510, redis28, redis2823, redis2822, redis2821, redis2819, redis286, redis32, redis326, redis3210, redis40, redis50, redis503, redis504, redis505"
+  description = "(memcached, redis, redis multi shard) The name of the cache engine to be used for this cluster. Valid values are: memcached14, memcached1510, memcached1516, redis28, redis2823, redis2822, redis2821, redis2819, redis286, redis32, redis326, redis3210, redis40, redis50, redis503, redis504, redis505, redis506"
   type        = string
 }
 
