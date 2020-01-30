@@ -191,8 +191,8 @@ locals {
     var.additional_tags,
     {
       Environment     = var.environment
-      ServiceProvider = "Rackspace"
       Name            = local.truncated_constructed_cluster_name
+      ServiceProvider = "Rackspace"
     }
   )
 }
@@ -209,17 +209,17 @@ resource "aws_elasticache_subnet_group" "elasticache_subnet_group" {
 resource "aws_elasticache_parameter_group" "elasticache_parameter_group" {
   count = local.redis_multishard || local.conflict_exists ? 0 : 1
 
-  name   = "${var.cluster_name}-ecparamgroup"
   family = local.elasticache_family
+  name   = "${var.cluster_name}-ecparamgroup"
 }
 
 resource "aws_route53_record" "internal_record_set_elasticache" {
   count = var.create_route53_record && false == local.conflict_exists ? 1 : 0
 
   name    = "${var.internal_record_name}.${var.internal_zone_name}"
+  ttl     = "300"
   type    = "CNAME"
   zone_id = var.internal_zone_id
-  ttl     = "300"
 
   records = coalescelist(
     aws_elasticache_replication_group.redis_rep_group.*.primary_endpoint_address,
@@ -309,19 +309,18 @@ module "curr_connections_alarm" {
 resource "aws_elasticache_cluster" "cache_cluster" {
   count = local.elasticache_name == "memcached" && false == local.conflict_exists ? 1 : 0
 
+  az_mode              = var.number_of_nodes > 1 ? "cross-az" : "single-az"
   cluster_id           = local.truncated_constructed_cluster_name
   engine               = local.elasticache_name
-  parameter_group_name = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
-  num_cache_nodes      = var.number_of_nodes
-  security_group_ids   = compact(var.security_group_list)
   engine_version       = local.elasticache_version
-  az_mode              = var.number_of_nodes > 1 ? "cross-az" : "single-az"
-  node_type            = var.instance_class
-  port                 = local.set_port
   maintenance_window   = var.preferred_maintenance_window
+  node_type            = var.instance_class
+  num_cache_nodes      = var.number_of_nodes
+  parameter_group_name = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
+  port                 = local.set_port
+  security_group_ids   = compact(var.security_group_list)
   subnet_group_name    = aws_elasticache_subnet_group.elasticache_subnet_group[0].name
-
-  tags = local.tags
+  tags                 = local.tags
 }
 
 locals {
@@ -362,27 +361,26 @@ module "swap_usage_alarm" {
 resource "aws_elasticache_replication_group" "redis_rep_group" {
   count = local.elasticache_name != "memcached" && false == local.redis_multishard ? 1 : 0
 
-  replication_group_description = var.replication_group_description
+  at_rest_encryption_enabled    = local.encryption_supported ? var.at_rest_encrypted_disk : false
+  automatic_failover_enabled    = var.instance_class != "cache.t1.micro" && var.number_of_nodes >= 2 ? var.failover_enabled : false
   engine                        = local.elasticache_name
   engine_version                = local.elasticache_version
-  parameter_group_name          = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
-  snapshot_arns                 = compact([var.snapshot_arn])
-  transit_encryption_enabled    = var.in_transit_encryption
-  snapshot_retention_limit      = local.snapshot_supported ? var.snapshot_retention_limit : 0
-  snapshot_name                 = local.snapshot_supported ? var.snapshot_name : ""
-  snapshot_window               = local.snapshot_supported ? var.snapshot_window : ""
-  at_rest_encryption_enabled    = local.encryption_supported ? var.at_rest_encrypted_disk : false
-  replication_group_id          = local.truncated_constructed_cluster_name
-  security_group_ids            = compact(var.security_group_list)
+  maintenance_window            = var.preferred_maintenance_window
   node_type                     = var.instance_class
   notification_topic_arn        = var.notification_topic
-  port                          = local.set_port
-  maintenance_window            = var.preferred_maintenance_window
-  subnet_group_name             = aws_elasticache_subnet_group.elasticache_subnet_group[0].name
-  automatic_failover_enabled    = var.instance_class != "cache.t1.micro" && var.number_of_nodes >= 2 ? var.failover_enabled : false
   number_cache_clusters         = var.number_of_nodes
-
-  tags = local.tags
+  parameter_group_name          = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
+  port                          = local.set_port
+  replication_group_description = var.replication_group_description
+  replication_group_id          = local.truncated_constructed_cluster_name
+  security_group_ids            = compact(var.security_group_list)
+  snapshot_arns                 = compact([var.snapshot_arn])
+  snapshot_name                 = local.snapshot_supported ? var.snapshot_name : ""
+  snapshot_retention_limit      = local.snapshot_supported ? var.snapshot_retention_limit : 0
+  snapshot_window               = local.snapshot_supported ? var.snapshot_window : ""
+  subnet_group_name             = aws_elasticache_subnet_group.elasticache_subnet_group[0].name
+  tags                          = local.tags
+  transit_encryption_enabled    = var.in_transit_encryption
 }
 
 ###</Redis non-multi-shard Resources>###
@@ -392,38 +390,37 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
 resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   count = local.redis_multishard && local.elasticache_name != "memcached" ? 1 : 0
 
-  replication_group_description = var.replication_group_description
+  at_rest_encryption_enabled    = local.encryption_supported ? var.at_rest_encrypted_disk : false
+  automatic_failover_enabled    = true
   engine                        = local.elasticache_name
   engine_version                = local.elasticache_version
-  parameter_group_name          = aws_elasticache_parameter_group.redis_multi_shard_param_group[0].name
-  snapshot_arns                 = compact([var.snapshot_arn])
-  transit_encryption_enabled    = var.in_transit_encryption
-  snapshot_retention_limit      = var.snapshot_retention_limit
-  snapshot_name                 = var.snapshot_name
-  snapshot_window               = var.snapshot_window
-  at_rest_encryption_enabled    = local.encryption_supported ? var.at_rest_encrypted_disk : false
-  replication_group_id          = local.truncated_constructed_cluster_name
-  security_group_ids            = compact(var.security_group_list)
+  maintenance_window            = var.preferred_maintenance_window
   node_type                     = var.instance_class
   notification_topic_arn        = var.notification_topic
+  parameter_group_name          = aws_elasticache_parameter_group.redis_multi_shard_param_group[0].name
   port                          = local.set_port
-  maintenance_window            = var.preferred_maintenance_window
+  replication_group_description = var.replication_group_description
+  replication_group_id          = local.truncated_constructed_cluster_name
+  security_group_ids            = compact(var.security_group_list)
+  snapshot_arns                 = compact([var.snapshot_arn])
+  snapshot_name                 = var.snapshot_name
+  snapshot_retention_limit      = var.snapshot_retention_limit
+  snapshot_window               = var.snapshot_window
   subnet_group_name             = aws_elasticache_subnet_group.elasticache_subnet_group[0].name
-  automatic_failover_enabled    = true
+  tags                          = local.tags
+  transit_encryption_enabled    = var.in_transit_encryption
 
   cluster_mode {
     num_node_groups         = var.number_of_shards
     replicas_per_node_group = var.number_of_read_replicas_per_shard
   }
-
-  tags = local.tags
 }
 
 resource "aws_elasticache_parameter_group" "redis_multi_shard_param_group" {
   count = local.redis_multishard ? 1 : 0
 
-  name   = "${var.cluster_name}-ecparamgroup"
   family = local.elasticache_family
+  name   = "${var.cluster_name}-ecparamgroup"
 
   parameter {
     name  = "cluster-enabled"

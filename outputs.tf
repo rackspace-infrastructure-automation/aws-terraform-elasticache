@@ -1,5 +1,6 @@
 output "elasticache_endpoint" {
   description = "Elasticache endpoint address"
+
   value = element(
     coalescelist(
       aws_elasticache_replication_group.redis_rep_group.*.primary_endpoint_address,
