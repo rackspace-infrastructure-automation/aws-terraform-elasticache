@@ -1,9 +1,3 @@
-variable "additional_tags" {
-  description = "(memcached, redis, redis multi shard) Additional tags to be added to the Elasticache resources. Please see examples directory in this repo for examples."
-  type        = map(string)
-  default     = {}
-}
-
 variable "at_rest_encrypted_disk" {
   description = "(redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`."
   type        = bool
@@ -14,17 +8,6 @@ variable "cache_cluster_port" {
   description = "(memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211"
   type        = string
   default     = ""
-}
-
-variable "cluster_name" {
-  description = "(memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
-  type        = string
-}
-
-variable "cluster_name_version" {
-  description = "(memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
-  type        = string
-  default     = "v00"
 }
 
 variable "cpu_high_evaluations" {
@@ -39,7 +22,7 @@ variable "cpu_high_threshold" {
   default     = 90
 }
 
-variable "create_route53_record" {
+variable "create_internal_zone_record" {
   description = "(memcached, redis, redis multi shard) Specifies whether or not to create a route53 CNAME record for the configuration/primary endpoint. internal_zone_id, internal_zone_name, and internal_record_name must be provided if set to true. true or false."
   type        = bool
   default     = false
@@ -115,6 +98,17 @@ variable "internal_zone_name" {
   default     = ""
 }
 
+variable "name" {
+  description = "(memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
+  type        = string
+}
+
+variable "name_version" {
+  description = "(memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
+  type        = string
+  default     = "v00"
+}
+
 variable "notification_topic" {
   description = "(memcached, redis, redis multi shard) SNS Topic ARN to notify if there are any alarms"
   type        = string
@@ -157,7 +151,7 @@ variable "replication_group_description" {
   default     = "Elasticache"
 }
 
-variable "security_group_list" {
+variable "security_groups" {
   description = "(memcached, redis, redis multi shard) A list of EC2 security groups to assign to this resource."
   type        = list(string)
 }
@@ -201,4 +195,10 @@ variable "swap_usage_threshold" {
   description = "(memcached) The max SwapUsage before generating an alarm"
   type        = number
   default     = 52428800
+}
+
+variable "tags" {
+  description = "(memcached, redis, redis multi shard) Additional tags to be added to the Elasticache resources. Please see examples directory in this repo for examples."
+  type        = map(string)
+  default     = {}
 }
