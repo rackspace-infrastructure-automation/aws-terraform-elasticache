@@ -153,10 +153,10 @@ locals {
     }
   }
 
-  elasticache_family   = "${lookup(local.elasticache_engine["${var.elasticache_engine_type}"], "family")}"
-  elasticache_name     = "${lookup(local.elasticache_engine["${var.elasticache_engine_type}"], "name")}"
-  elasticache_version  = "${lookup(local.elasticache_engine["${var.elasticache_engine_type}"], "version")}"
-  encryption_supported = "${lookup(local.elasticache_engine["${var.elasticache_engine_type}"], "encryption_supported")}"
+  elasticache_family   = "${lookup(local.elasticache_engine[var.elasticache_engine_type], "family")}"
+  elasticache_name     = "${lookup(local.elasticache_engine[var.elasticache_engine_type], "name")}"
+  elasticache_version  = "${lookup(local.elasticache_engine[var.elasticache_engine_type], "version")}"
+  encryption_supported = "${lookup(local.elasticache_engine[var.elasticache_engine_type], "encryption_supported")}"
 
   # Determine if this qualifies as a redis multi shard instance
   redis_multishard = "${local.elasticache_name == "redis" && var.redis_multi_shard ? true : false}"
@@ -305,7 +305,7 @@ resource "aws_elasticache_cluster" "cache_cluster" {
   subnet_group_name    = "${aws_elasticache_subnet_group.elasticache_subnet_group.name}"
 
   tags = "${merge(
-    map("Name", "${local.truncated_constructed_cluster_name}"),
+    map("Name", local.truncated_constructed_cluster_name),
     local.tags,
     var.additional_tags
   )}"
@@ -365,7 +365,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   number_cache_clusters         = "${var.number_of_nodes}"
 
   tags = "${merge(
-    map("Name", "${local.truncated_constructed_cluster_name}"),
+    map("Name", local.truncated_constructed_cluster_name),
     local.tags,
     var.additional_tags
   )}"
@@ -403,7 +403,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   }
 
   tags = "${merge(
-    map("Name", "${local.truncated_constructed_cluster_name}"),
+    map("Name", local.truncated_constructed_cluster_name),
     local.tags,
     var.additional_tags
   )}"

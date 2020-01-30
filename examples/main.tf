@@ -132,7 +132,7 @@ module "elasticache_redis_2" {
   }
 }
 
-resource "random_string" "19_char_string" {
+resource "random_string" "string_19" {
   length  = 19
   lower   = true
   upper   = false
@@ -143,8 +143,8 @@ resource "random_string" "19_char_string" {
 module "elasticache_redis_constructed_cluster_name_20_chars" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
 
-  cluster_name            = "${random_string.19_char_string.result}a"
-  cluster_name_version    = "${random_string.19_char_string.result}a"
+  cluster_name            = "${random_string.string_19.result}a"
+  cluster_name_version    = "${random_string.string_19.result}a"
   elasticache_engine_type = "redis50"
   instance_class          = "cache.t2.medium"
   redis_multi_shard       = false
@@ -155,8 +155,8 @@ module "elasticache_redis_constructed_cluster_name_20_chars" {
 module "elasticache_redis_constructed_cluster_name_19_chars" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
 
-  cluster_name            = "${random_string.19_char_string.result}"
-  cluster_name_version    = "${random_string.19_char_string.result}"
+  cluster_name            = "${random_string.string_19.result}"
+  cluster_name_version    = "${random_string.string_19.result}"
   elasticache_engine_type = "redis50"
   instance_class          = "cache.t2.medium"
   redis_multi_shard       = false
