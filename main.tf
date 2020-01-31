@@ -343,7 +343,7 @@ resource "aws_elasticache_cluster" "cache_cluster" {
   num_cache_nodes      = var.number_of_nodes
   parameter_group_name = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
   port                 = local.set_port
-  security_group_ids   = compact(var.security_groups)
+  security_group_ids   = var.security_groups
   subnet_group_name    = aws_elasticache_subnet_group.elasticache_subnet_group[0].name
   tags                 = local.tags
 }
@@ -398,7 +398,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   port                          = local.set_port
   replication_group_description = var.replication_group_description
   replication_group_id          = local.truncated_name
-  security_group_ids            = compact(var.security_groups)
+  security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = local.snapshot_supported ? var.snapshot_name : ""
   snapshot_retention_limit      = local.snapshot_supported ? var.snapshot_retention_limit : 0
@@ -426,7 +426,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   port                          = local.set_port
   replication_group_description = var.replication_group_description
   replication_group_id          = local.truncated_name
-  security_group_ids            = compact(var.security_groups)
+  security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = var.snapshot_name
   snapshot_retention_limit      = var.snapshot_retention_limit
