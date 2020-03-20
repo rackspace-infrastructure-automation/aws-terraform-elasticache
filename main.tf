@@ -7,7 +7,7 @@
  *
  * ```HCL
  * module "elasticache_memcached" {
- *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
+ *   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.14"
  *
  *   cluster_name               = "memc-${random_string.name_suffix.result}"
  *   create_route53_record      = true
@@ -27,7 +27,7 @@
  *     MyTag3 = "MyValue3"
  *   }
  * }
- *```
+ * ```
  *
  * Full working references are available at [examples](examples)
  * ## Other TF Modules Used
@@ -151,6 +151,13 @@ locals {
       family               = "redis5.0"
       encryption_supported = true
     }
+
+    redis506 = {
+      version              = "5.0.6"
+      name                 = "redis"
+      family               = "redis5.0"
+      encryption_supported = true
+    }
   }
 
   elasticache_family   = "${lookup(local.elasticache_engine["${var.elasticache_engine_type}"], "family")}"
@@ -208,20 +215,20 @@ resource "aws_elasticache_parameter_group" "elasticache_parameter_group" {
 }
 
 resource "aws_route53_record" "internal_record_set_elasticache" {
-  count = "${var.create_route53_record && !(local.conflict_exists) ? 1 : 0}"
+  count = "${var.create_route53_record && ! (local.conflict_exists) ? 1 : 0}"
 
   name    = "${var.internal_record_name}.${var.internal_zone_name}"
   type    = "CNAME"
   zone_id = "${var.internal_zone_id}"
   ttl     = "300"
-  records = ["${element(coalescelist(aws_elasticache_replication_group.redis_rep_group.*.primary_endpoint_address, aws_elasticache_replication_group.redis_multi_shard_rep_group.*.configuration_endpoint_address, aws_elasticache_cluster.cache_cluster.*.configuration_endpoint),0)}"]
+  records = ["${element(coalescelist(aws_elasticache_replication_group.redis_rep_group.*.primary_endpoint_address, aws_elasticache_replication_group.redis_multi_shard_rep_group.*.configuration_endpoint_address, aws_elasticache_cluster.cache_cluster.*.configuration_endpoint), 0)}"]
 }
 
 ###<\Common Resources>###
 
 ###<Elasticache Memcached and Redis non-multi-shard Shared Resources>###
 data "null_data_source" "alarm_dimensions" {
-  count = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
+  count = "${! (local.redis_multishard) && ! (local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
 
   inputs = {
     CacheClusterId = "${element(coalescelist(aws_elasticache_cluster.cache_cluster.*.cluster_id, flatten(aws_elasticache_replication_group.redis_rep_group.*.member_clusters)), count.index)}"
@@ -231,7 +238,7 @@ data "null_data_source" "alarm_dimensions" {
 module "evictions_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
 
-  alarm_count              = "${!(local.redis_multishard) && !(local.conflict_exists) && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0}"
+  alarm_count              = "${! (local.redis_multishard) && ! (local.conflict_exists) && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0}"
   alarm_description        = "Evictions over ${var.evictions_threshold}"
   alarm_name               = "${var.cluster_name}-EvictionsAlarm"
   customer_alarms_enabled  = true
@@ -250,7 +257,7 @@ module "evictions_alarm" {
 module "cpu_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
 
-  alarm_count              = "${!(local.redis_multishard) && !(local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
+  alarm_count              = "${! (local.redis_multishard) && ! (local.conflict_exists) ? local.redis_memcached_alarm_count : 0}"
   alarm_name               = "${var.cluster_name}-CPUUtilizationAlarm"
   alarm_description        = "CPUUtilization over ${var.cpu_high_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
@@ -269,7 +276,7 @@ module "cpu_utilization_alarm" {
 module "curr_connections_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
 
-  alarm_count              = "${!(local.redis_multishard) && !(local.conflict_exists) && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0}"
+  alarm_count              = "${! (local.redis_multishard) && ! (local.conflict_exists) && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0}"
   alarm_name               = "${var.cluster_name}-CurrConnectionsAlarm"
   alarm_description        = "CurrConnections over ${var.curr_connections_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
@@ -290,7 +297,7 @@ module "curr_connections_alarm" {
 ###<Elasticache Memcached Resources>###
 
 resource "aws_elasticache_cluster" "cache_cluster" {
-  count = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
+  count = "${local.elasticache_name == "memcached" && ! (local.conflict_exists) ? 1 : 0}"
 
   cluster_id           = "${local.truncated_constructed_cluster_name}"
   engine               = "${local.elasticache_name}"
@@ -318,7 +325,7 @@ locals {
 module "swap_usage_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1"
 
-  alarm_count              = "${local.elasticache_name == "memcached" && !(local.conflict_exists) ? 1 : 0}"
+  alarm_count              = "${local.elasticache_name == "memcached" && ! (local.conflict_exists) ? 1 : 0}"
   alarm_description        = "CacheCluster ${local.memcache_cluster_id} SwapUsage over ${var.swap_usage_threshold}"
   alarm_name               = "${var.cluster_name}-SwapUsageAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
@@ -342,7 +349,7 @@ module "swap_usage_alarm" {
 ###<Redis non-multi-shard Resources>###
 
 resource "aws_elasticache_replication_group" "redis_rep_group" {
-  count = "${local.elasticache_name != "memcached" && !(local.redis_multishard) ? 1 : 0}"
+  count = "${local.elasticache_name != "memcached" && ! (local.redis_multishard) ? 1 : 0}"
 
   replication_group_description = "${var.replication_group_description}"
   engine                        = "${local.elasticache_name}"

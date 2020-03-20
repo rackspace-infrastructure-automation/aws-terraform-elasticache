@@ -34,7 +34,7 @@ module "internal_zone" {
 }
 
 module "security_groups" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.6"
 
   resource_name = "ElastiCacheTestSG"
   vpc_id        = "${module.vpc.vpc_id}"
@@ -42,7 +42,7 @@ module "security_groups" {
 }
 
 module "elasticache_memcached" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.14"
 
   cluster_name               = "memc-${random_string.r_string.result}"
   elasticache_engine_type    = "memcached14"
@@ -85,7 +85,7 @@ module "elasticache_redis_multi_shard" {
 }
 
 module "elasticache_redis_1" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.14"
 
   cluster_name            = "red-${random_string.r_string.result}-1"
   elasticache_engine_type = "redis50"
@@ -106,7 +106,7 @@ module "elasticache_redis_1" {
 }
 
 module "elasticache_redis_2" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.14"
 
   cluster_name               = "red-${random_string.r_string.result}-2"
   elasticache_engine_type    = "redis50"
@@ -141,7 +141,7 @@ resource "random_string" "19_char_string" {
 }
 
 module "elasticache_redis_constructed_cluster_name_20_chars" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.14"
 
   cluster_name            = "${random_string.19_char_string.result}a"
   cluster_name_version    = "${random_string.19_char_string.result}a"
@@ -153,7 +153,7 @@ module "elasticache_redis_constructed_cluster_name_20_chars" {
 }
 
 module "elasticache_redis_constructed_cluster_name_19_chars" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.13"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.0.14"
 
   cluster_name            = "${random_string.19_char_string.result}"
   cluster_name_version    = "${random_string.19_char_string.result}"

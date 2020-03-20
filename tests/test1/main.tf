@@ -34,7 +34,7 @@ module "internal_zone" {
 }
 
 module "security_groups" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.5"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-security_group?ref=v0.0.6"
 
   resource_name = "ElastiCacheTestSG"
   vpc_id        = "${module.vpc.vpc_id}"
