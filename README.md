@@ -26,15 +26,16 @@ module "elasticache_memcached" {
     MyTag3 = "MyValue3"
   }
 }
+*
 ```
 
 Full working references are available at [examples](examples)
 
 ## Other TF Modules Used  
-Using [aws-terraform-cloudwatch\_alarm](https://github.com/rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm) to create the following CloudWatch Alarms:  
-- evictions\_alarm  
-- cpu\_utilization\_alarm  
-- curr\_connections\_alarm  
+Using [aws-terraform-cloudwatch\_alarm](https://github.com/rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm) to create the following CloudWatch Alarms:
+- evictions\_alarm
+- cpu\_utilization\_alarm
+- curr\_connections\_alarm
 - swap\_usage\_alarm
 
 ## Terraform 0.12 upgrade
@@ -46,17 +47,17 @@ made when upgrading from a previous release to version 0.12.0 or higher.
 
 The following module variables were updated to better meet current Rackspace style guides:
 
-- `additional_tags` -> `tags`  
-- `cluster_name` -> `name`  
-- `cluster_name_version` -> `name_version`  
-- `create_route53_record` -> `create_internal_zone_record`  
+- `additional_tags` -> `tags`
+- `cluster_name` -> `name`
+- `cluster_name_version` -> `name_version`
+- `create_route53_record` -> `create_internal_zone_record`
 - `security_group_list` -> `security_groups`
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| aws | >= 2.1.0 |
+| aws | >= 2.7.0 |
 | null | n/a |
 
 ## Inputs
