@@ -63,8 +63,9 @@ The following module variables were updated to better meet current Rackspace sty
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | at\_rest\_encrypted\_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`. | `bool` | `false` | no |
+| authentication\_token | The password used to access a password protected server. Can be specified only if in\_transit\_encryption = true and will be ignored otherwise | `string` | `""` | no |
 | cache\_cluster\_port | (memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211 | `string` | `""` | no |
 | cpu\_high\_evaluations | (memcached, redis) The number of minutes CPU usage must remain above the specified threshold to generate an alarm. | `number` | `5` | no |
 | cpu\_high\_threshold | (memcached, redis) The max CPU Usage % before generating an alarm. | `number` | `90` | no |
