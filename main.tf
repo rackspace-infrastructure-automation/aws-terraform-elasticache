@@ -212,6 +212,8 @@ locals {
 
   snapshot_supported = var.instance_class == "cache.t1.micro" ? false : true
 
+  authentication_token = var.in_transit_encryption == true ? var.authentication_token : ""
+
   tags = merge(
     var.tags,
     {
@@ -387,6 +389,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   count = local.elasticache_name != "memcached" && false == local.redis_multishard ? 1 : 0
 
   at_rest_encryption_enabled    = local.encryption_supported ? var.at_rest_encrypted_disk : false
+  auth_token                    = local.authentication_token
   automatic_failover_enabled    = var.instance_class != "cache.t1.micro" && var.number_of_nodes >= 2 ? var.failover_enabled : false
   engine                        = local.elasticache_name
   engine_version                = local.elasticache_version
@@ -416,6 +419,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   count = local.redis_multishard && local.elasticache_name != "memcached" ? 1 : 0
 
   at_rest_encryption_enabled    = local.encryption_supported ? var.at_rest_encrypted_disk : false
+  auth_token                    = local.authentication_token
   automatic_failover_enabled    = true
   engine                        = local.elasticache_name
   engine_version                = local.elasticache_version
