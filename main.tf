@@ -212,7 +212,7 @@ locals {
 
   snapshot_supported = var.instance_class == "cache.t1.micro" ? false : true
 
-  authentication_token = var.in_transit_encryption == true ? var.authentication_token : ""
+  authentication_token = var.in_transit_encryption == true ? var.authentication_token : null
 
   tags = merge(
     var.tags,

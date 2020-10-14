@@ -5,7 +5,7 @@ variable "at_rest_encrypted_disk" {
 }
 
 variable "authentication_token" {
-  description = "The password used to access a password protected server. Can be specified only if in_transit_encryption = true and will be ignored otherwise"
+  description = "(redis, redis multi shard) The password used to access a password protected server. Can be specified only if `in_transit_encryption = true` and will be ignored otherwise"
   type        = string
   default     = ""
 }
@@ -76,7 +76,7 @@ variable "failover_enabled" {
 }
 
 variable "in_transit_encryption" {
-  description = "(redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false"
+  description = "(redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 and later. true or false"
   type        = bool
   default     = false
 }

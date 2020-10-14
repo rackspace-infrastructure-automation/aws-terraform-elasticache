@@ -63,9 +63,9 @@ The following module variables were updated to better meet current Rackspace sty
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+|------|-------------|------|---------|:-----:|
 | at\_rest\_encrypted\_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`. | `bool` | `false` | no |
-| authentication\_token | The password used to access a password protected server. Can be specified only if in\_transit\_encryption = true and will be ignored otherwise | `string` | `""` | no |
+| authentication\_token | (redis, redis multi shard) The password used to access a password protected server. Can be specified only if `in_transit_encryption = true` and will be ignored otherwise | `string` | `""` | no |
 | cache\_cluster\_port | (memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211 | `string` | `""` | no |
 | cpu\_high\_evaluations | (memcached, redis) The number of minutes CPU usage must remain above the specified threshold to generate an alarm. | `number` | `5` | no |
 | cpu\_high\_threshold | (memcached, redis) The max CPU Usage % before generating an alarm. | `number` | `90` | no |
@@ -77,7 +77,7 @@ The following module variables were updated to better meet current Rackspace sty
 | evictions\_evaluations | (memcached, redis) The number of minutes Evictions must remain above the specified threshold to generate an alarm. | `number` | `5` | no |
 | evictions\_threshold | (memcached, redis) The max evictions before generating an alarm. NOTE: If this variable is not set, the evictions alarm will not be provisioned. | `string` | `""` | no |
 | failover\_enabled | (redis) Enable Multi-AZ Failover. Failover is unsupported on the cache.t1.micro instance class. This is hardcoded as true for Redis multi-shard. | `bool` | `true` | no |
-| in\_transit\_encryption | (redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false | `bool` | `false` | no |
+| in\_transit\_encryption | (redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 and later. true or false | `bool` | `false` | no |
 | instance\_class | (memcached, redis, redis multi shard) The compute and memory capacity of the nodes within the ElastiCache cluster. Please see https://docs.aws.amazon.com/AmazonElastiCache/latest/mem-ug/CacheNodes.SupportedTypes.html for valid instance types. | `string` | n/a | yes |
 | internal\_record\_name | (memcached, redis, redis multi shard) Record Name for the new Resource Record in the Internal Hosted Zone | `string` | `""` | no |
 | internal\_zone\_id | (memcached, redis, redis multi shard) The Route53 Internal Hosted Zone ID | `string` | `""` | no |

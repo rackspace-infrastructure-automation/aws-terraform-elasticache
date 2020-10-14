@@ -169,3 +169,16 @@ module "elasticache_redis_constructed_cluster_name_19_chars" {
   subnets                 = module.vpc.private_subnets
 }
 
+
+module "elasticache_redis_secured" {
+  source = "../../module"
+
+  authentication_token    = "MyV3ryS3cur3T0k3n!"
+  elasticache_engine_type = "redis506"
+  in_transit_encryption   = true
+  instance_class          = "cache.m4.large"
+  name                    = "redsec-${random_string.r_string.result}"
+  redis_multi_shard       = true
+  security_groups         = [module.security_groups.elastic_cache_redis_security_group_id]
+  subnets                 = module.vpc.private_subnets
+}
