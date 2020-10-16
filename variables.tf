@@ -4,6 +4,12 @@ variable "at_rest_encrypted_disk" {
   default     = false
 }
 
+variable "authentication_token" {
+  description = "(redis, redis multi shard) The password used to access a password protected server. Can be specified only if `in_transit_encryption = true` and will be ignored otherwise"
+  type        = string
+  default     = ""
+}
+
 variable "cache_cluster_port" {
   description = "(memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211"
   type        = string
@@ -70,7 +76,7 @@ variable "failover_enabled" {
 }
 
 variable "in_transit_encryption" {
-  description = "(redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6 AND 4.0.10. true or false"
+  description = "(redis, redis multi shard) Indicates whether to enable encryption in transit. Because there is some processing needed to encrypt and decrypt the data at the endpoints, enabling in-transit encryption can have some performance impact.ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 and later. true or false"
   type        = bool
   default     = false
 }
