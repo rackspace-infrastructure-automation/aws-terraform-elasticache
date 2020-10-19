@@ -184,18 +184,18 @@ locals {
   redis_multishard = local.elasticache_name == "redis" && var.redis_multi_shard ? true : false
 
   # Construct cluster naming with cluster version here
-  # There is a var.maxlen char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.name,
-  # var.name_version, and a hyphen. var.maxlen-1 is being used as a limit to take account the hyphen that will be used.
+  # There is a 50 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.name,
+  # var.name_version, and a hyphen. 49 is being used as a limit to take account the hyphen that will be used.
   # Since there is a limit, we must determine how much of the provided input to var.name can be used.
   # Total length is (full length of var.name_version) + (length of hyphen) + (substring of var.name_version)
   # So if the constructed cluster name is too long, var.name will trimmed off.
 
-  substring_length = min(var.maxlen - 1 - length(var.name_version), length(var.name))
+  substring_length = min(49 - 1 - length(var.name_version), length(var.name))
   name_parts       = compact([substr(var.name, 0, local.substring_length), var.name_version])
   constructed_name = join("-", local.name_parts)
 
   truncated_name = replace(
-    substr(local.constructed_name, 0, min(var.maxlen, length(local.constructed_name))),
+    substr(local.constructed_name, 0, min(50, length(local.constructed_name))),
     "/-$/",
     "",
   )

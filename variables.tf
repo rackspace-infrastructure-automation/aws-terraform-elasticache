@@ -139,12 +139,6 @@ variable "number_of_shards" {
   default     = 2
 }
 
-variable "maxlen" {
-  description = "Maximum length of cluster name."
-  type        = number
-  default     = 20
-}
-
 variable "preferred_maintenance_window" {
   description = "(memcached, redis, redis multi shard) The weekly time range (in UTC) during which system maintenance can occur. Example: Sun:05:00-Sun:07:00"
   type        = string
