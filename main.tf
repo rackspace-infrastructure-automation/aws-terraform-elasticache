@@ -195,7 +195,7 @@ locals {
   constructed_name = join("-", local.name_parts)
 
   truncated_name = replace(
-    substr(local.constructed_name, 0, min(40, length(local.constructed_name))),
+    substr(local.constructed_name, 0, min(20, length(local.constructed_name))),
     "/-$/",
     "",
   )
