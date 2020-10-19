@@ -195,12 +195,6 @@ locals {
   constructed_name = join("-", local.name_parts)
 
   truncated_name = replace(
-    substr(local.constructed_name, 0, min(50, length(local.constructed_name))),
-    "/-$/",
-    "",
-  )
-
-  replication_group_truncated = replace(
     substr(local.constructed_name, 0, min(40, length(local.constructed_name))),
     "/-$/",
     "",
@@ -406,7 +400,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   parameter_group_name          = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
   port                          = local.set_port
   replication_group_description = var.replication_group_description
-  replication_group_id          = local.replication_group_truncated
+  replication_group_id          = local.truncated_name
   security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = local.snapshot_supported ? var.snapshot_name : ""
@@ -435,7 +429,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   parameter_group_name          = aws_elasticache_parameter_group.redis_multi_shard_param_group[0].name
   port                          = local.set_port
   replication_group_description = var.replication_group_description
-  replication_group_id          = local.replication_group_truncated
+  replication_group_id          = local.truncated_name
   security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = var.snapshot_name
