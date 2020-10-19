@@ -200,6 +200,12 @@ locals {
     "",
   )
 
+  replication_group_truncated = replace(
+    substr(local.constructed_name, 0, min(40, length(local.constructed_name))),
+    "/-$/",
+    "",
+  )
+
   # For non-multi-shard redis or memcached, determine alarm counts
   redis_memcached_alarm_count = local.elasticache_name == "memcached" ? 1 : var.number_of_nodes
 
@@ -400,7 +406,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   parameter_group_name          = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
   port                          = local.set_port
   replication_group_description = var.replication_group_description
-  replication_group_id          = local.truncated_name
+  replication_group_id          = local.replication_group_truncated
   security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = local.snapshot_supported ? var.snapshot_name : ""
@@ -429,7 +435,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   parameter_group_name          = aws_elasticache_parameter_group.redis_multi_shard_param_group[0].name
   port                          = local.set_port
   replication_group_description = var.replication_group_description
-  replication_group_id          = local.truncated_name
+  replication_group_id          = local.replication_group_truncated
   security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = var.snapshot_name
