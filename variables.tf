@@ -3,7 +3,11 @@ variable "at_rest_encrypted_disk" {
   type        = bool
   default     = false
 }
-
+variable "maxlen" {
+  description = "Maximum length of cluster name."
+  type        = int
+  default     = 20
+}
 variable "authentication_token" {
   description = "(redis, redis multi shard) The password used to access a password protected server. Can be specified only if `in_transit_encryption = true` and will be ignored otherwise"
   type        = string
