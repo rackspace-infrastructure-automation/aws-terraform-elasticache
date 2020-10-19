@@ -141,7 +141,7 @@ variable "number_of_shards" {
 
 variable "maxlen" {
   description = "Maximum length of cluster name."
-  type        = int
+  type        = number
   default     = 20
 }
 
