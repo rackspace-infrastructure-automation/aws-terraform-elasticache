@@ -88,6 +88,7 @@ The following module variables were updated to better meet current Rackspace sty
 | number\_of\_nodes | (memcached, redis) The number of cache nodes within the ElastiCache cluster. This number must be grearter or equal 2 to enable automatic failover. | `number` | `1` | no |
 | number\_of\_read\_replicas\_per\_shard | (redis multi shard) Number of read replicas per shard | `number` | `2` | no |
 | number\_of\_shards | (redis multi shard) Number of shards | `number` | `2` | no |
+| maxlen | Maximum length of cluster name | `number` | `20` | no |
 | preferred\_maintenance\_window | (memcached, redis, redis multi shard) The weekly time range (in UTC) during which system maintenance can occur. Example: Sun:05:00-Sun:07:00 | `string` | `"Sun:05:00-Sun:07:00"` | no |
 | redis\_multi\_shard | (edis, redis multi shard) Is this a redis multi-shard instance? true or false | `bool` | `false` | no |
 | replication\_group\_description | (redis, redis multi shard) Description of Replication Group | `string` | `"Elasticache"` | no |
