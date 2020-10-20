@@ -119,6 +119,7 @@ variable "replication_group_name" {
 variable "name" {
   description = "DEPRECATED, MAY REMOVE IN A FUTURE VERSION, USE `cluster_name` AND `replication_group_name`!! (memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
   type        = string
+  default     = ""
 }
 
 variable "name_version" {
