@@ -234,7 +234,7 @@ locals {
 resource "aws_elasticache_subnet_group" "elasticache_subnet_group" {
   count = local.conflict_exists ? 0 : 1
 
-  name       = "${var.name}-subnetgroup"
+  name       = var.cluster_name == "" ? "${var.name}-subnetgroup" : "${var.cluster_name}-subnetgroup"
   subnet_ids = var.subnets
 }
 
@@ -242,7 +242,7 @@ resource "aws_elasticache_parameter_group" "elasticache_parameter_group" {
   count = local.redis_multishard || local.conflict_exists ? 0 : 1
 
   family = local.elasticache_family
-  name   = "${var.name}-ecparamgroup"
+  name   = var.cluster_name == "" ? "${var.name}-ecparamgroup" : "${var.cluster_name}-ecparamgroup"
 }
 
 resource "aws_route53_record" "internal_record_set_elasticache" {
@@ -282,7 +282,7 @@ module "evictions_alarm" {
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0
   alarm_description        = "Evictions over ${var.evictions_threshold}"
-  alarm_name               = "${var.name}-EvictionsAlarm"
+  alarm_name               = var.cluster_name == "" ? "${var.name}-EvictionsAlarm" : "${var.cluster_name}-EvictionsAlarm"
   customer_alarms_enabled  = true
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   dimensions               = data.null_data_source.alarm_dimensions.*.outputs
@@ -300,7 +300,7 @@ module "cpu_utilization_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists ? local.redis_memcached_alarm_count : 0
-  alarm_name               = "${var.name}-CPUUtilizationAlarm"
+  alarm_name               = var.cluster_name == "" ? "${var.name}-CPUUtilizationAlarm" : "${var.cluster_name}-CPUUtilizationAlarm"
   alarm_description        = "CPUUtilization over ${var.cpu_high_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -319,7 +319,7 @@ module "curr_connections_alarm" {
   source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0
-  alarm_name               = "${var.name}-CurrConnectionsAlarm"
+  alarm_name               = var.cluster_name == "" ? "${var.name}-CurrConnectionsAlarm" : "${var.cluster_name}-CurrConnectionsAlarm"
   alarm_description        = "CurrConnections over ${var.curr_connections_threshold}"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
@@ -367,7 +367,7 @@ module "swap_usage_alarm" {
 
   alarm_count              = local.elasticache_name == "memcached" && false == local.conflict_exists ? 1 : 0
   alarm_description        = "CacheCluster ${local.memcache_cluster_id} SwapUsage over ${var.swap_usage_threshold}"
-  alarm_name               = "${var.name}-SwapUsageAlarm"
+  alarm_name               = var.cluster_name == "" ? "${var.name}-SwapUsageAlarm" : "${var.cluster_name}-SwapUsageAlarm"
   comparison_operator      = "GreaterThanOrEqualToThreshold"
   customer_alarms_enabled  = true
   evaluation_periods       = var.swap_usage_evaluations
@@ -454,7 +454,7 @@ resource "aws_elasticache_parameter_group" "redis_multi_shard_param_group" {
   count = local.redis_multishard ? 1 : 0
 
   family = local.elasticache_family
-  name   = "${var.name}-ecparamgroup"
+  name   = var.cluster_name == "" ? "${var.name}-ecparamgroup" : "${var.cluster_name}-ecparamgroup"
 
   parameter {
     name  = "cluster-enabled"
