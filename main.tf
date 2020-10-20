@@ -184,13 +184,18 @@ locals {
   redis_multishard = local.elasticache_name == "redis" && var.redis_multi_shard ? true : false
 
   # Construct cluster naming with cluster version here
-  # There is a 50 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.name,
-  # var.name_version, and a hyphen. 49 is being used as a limit to take account the hyphen that will be used.
+  # There is a 20 char limit on cluster naming. Cluster naming is usually made up of the provided inputs to var.name,
+  # var.name_version, and a hyphen. 19 is being used as a limit to take account the hyphen that will be used.
   # Since there is a limit, we must determine how much of the provided input to var.name can be used.
   # Total length is (full length of var.name_version) + (length of hyphen) + (substring of var.name_version)
   # So if the constructed cluster name is too long, var.name will trimmed off.
 
-  substring_length = min(49 - length(var.name_version), length(var.name))
+  # DEPRECATION PLANS: With the change of the number of characters that are allowed to be used in the Cluster name (50)
+  # but not changing the length of the replication_group_id (40) we are adding logic to check for old or new settings to
+  # prevent rebuilding. Adding `cluster_name` and `replication_group_name`. If you need to manage 20 character clusters
+  # leave these fields blank, otherwise leave `name` and `name_version` blank.
+
+  substring_length = min(19 - length(var.name_version), length(var.name))
   name_parts       = compact([substr(var.name, 0, local.substring_length), var.name_version])
   constructed_name = join("-", local.name_parts)
 
@@ -218,7 +223,7 @@ locals {
     var.tags,
     {
       Environment     = var.environment
-      Name            = local.truncated_name
+      Name            = var.cluster_name == "" ? local.truncated_name : var.cluster_name
       ServiceProvider = "Rackspace"
     }
   )
@@ -337,7 +342,7 @@ resource "aws_elasticache_cluster" "cache_cluster" {
   count = local.elasticache_name == "memcached" && false == local.conflict_exists ? 1 : 0
 
   az_mode              = var.number_of_nodes > 1 ? "cross-az" : "single-az"
-  cluster_id           = local.truncated_name
+  cluster_id           = var.cluster_name == "" ? local.truncated_name : var.cluster_name
   engine               = local.elasticache_name
   engine_version       = local.elasticache_version
   maintenance_window   = var.preferred_maintenance_window
@@ -400,7 +405,7 @@ resource "aws_elasticache_replication_group" "redis_rep_group" {
   parameter_group_name          = aws_elasticache_parameter_group.elasticache_parameter_group[0].name
   port                          = local.set_port
   replication_group_description = var.replication_group_description
-  replication_group_id          = local.truncated_name
+  replication_group_id          = var.replication_group_name == "" ? local.truncated_name : var.replication_group_name
   security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = local.snapshot_supported ? var.snapshot_name : ""
@@ -429,7 +434,7 @@ resource "aws_elasticache_replication_group" "redis_multi_shard_rep_group" {
   parameter_group_name          = aws_elasticache_parameter_group.redis_multi_shard_param_group[0].name
   port                          = local.set_port
   replication_group_description = var.replication_group_description
-  replication_group_id          = local.truncated_name
+  replication_group_id          = var.replication_group_name == "" ? local.truncated_name : var.replication_group_name
   security_group_ids            = var.security_groups
   snapshot_arns                 = compact([var.snapshot_arn])
   snapshot_name                 = var.snapshot_name
