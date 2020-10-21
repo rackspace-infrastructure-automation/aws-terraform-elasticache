@@ -62,7 +62,7 @@ module "elasticache_redis_constructed_cluster_name_50_chars" {
   elasticache_engine_type       = "redis506"
   instance_class                = "cache.t2.medium"
   cluster_name                  = "${random_string.r_string_40.result}abcdefghij" # can accept up to 50 characters
-  replication_group_description = random_string.r_string_40.result # can accept up to 40 characters
+  replication_group_description = random_string.r_string_40.result                # can accept up to 40 characters
   redis_multi_shard             = false
   security_groups               = [module.security_groups.elastic_cache_redis_security_group_id]
   subnets                       = module.vpc.private_subnets
