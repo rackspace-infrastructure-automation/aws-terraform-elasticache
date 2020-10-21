@@ -104,13 +104,26 @@ variable "internal_zone_name" {
   default     = ""
 }
 
-variable "name" {
-  description = "(memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
+variable "cluster_name" {
+  description = "(memcached, redis, redis multi shard) Name of the Cluster. Will also be used to name other provisioned resources. If this value is empty, `name` and `name_version` will be used for backwards compatibility. Should not exceed 50 characters due to string length constraints. NOTICE: Cluster Name allows 50 characters MAX."
   type        = string
+  default     = ""
+}
+
+variable "replication_group_name" {
+  description = "(memcached, redis, redis multi shard) Name of the Cluster replication group ID, must be unique. If this value is empty, `name` and `name_version` will be used for backwards compatibility. Should not exceed 40 characters due to string length constraints. NOTICE: Group ID allows 40 characters MAX."
+  type        = string
+  default     = ""
+}
+
+variable "name" {
+  description = "DEPRECATED, MAY REMOVE IN A FUTURE VERSION, USE `cluster_name` AND `replication_group_name`!! (memcached, redis, redis multi shard) Name of Cluster. Will also be used to name other provisioned resources. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
+  type        = string
+  default     = ""
 }
 
 variable "name_version" {
-  description = "(memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
+  description = "DEPRECATED, MAY REMOVE IN A FUTURE VERSION, USE `cluster_name` AND `replication_group_name`!! (memcached, redis, redis multi shard) NOTE: This needs to increment on update with new snapshot. If non empty cluster_name_version is being used, total length of cluster_name plus cluster_name_version should not exceed 19 due to string length constraints"
   type        = string
   default     = "v00"
 }

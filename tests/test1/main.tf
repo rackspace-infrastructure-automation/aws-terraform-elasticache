@@ -182,3 +182,23 @@ module "elasticache_redis_secured" {
   security_groups         = [module.security_groups.elastic_cache_redis_security_group_id]
   subnets                 = module.vpc.private_subnets
 }
+
+resource "random_string" "string_40" {
+  length  = 40
+  lower   = true
+  number  = false
+  special = false
+  upper   = false
+}
+
+module "elasticache_redis_constructed_cluster_name_50_40_chars" {
+  source = "../../module"
+
+  elasticache_engine_type = "redis506"
+  instance_class          = "cache.t2.medium"
+  cluster_name            = "${random_string.string_40.result}abcdefghij"
+  replication_group_name  = random_string.string_40.result
+  redis_multi_shard       = false
+  security_groups         = [module.security_groups.elastic_cache_redis_security_group_id]
+  subnets                 = module.vpc.private_subnets
+}
