@@ -57,7 +57,7 @@ module "security_groups" {
 ############################################################
 
 module "elasticache_redis_constructed_cluster_name_50_chars" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.12.1"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-elasticache.git?ref=v0.12.2"
 
   elasticache_engine_type       = "redis506"
   instance_class                = "cache.t2.medium"
