@@ -47,7 +47,7 @@
  *
  * The following module variables were updated to better meet current Rackspace style guides:
  *
- * - `additional_tags` -> `tags`  
+ * - `additional_tags` -> `tags`
  * - `cluster_name` -> `name`
  * - `cluster_name_version` -> `name_version`
  * - `create_route53_record` -> `create_internal_zone_record`
@@ -278,7 +278,7 @@ data "null_data_source" "alarm_dimensions" {
 }
 
 module "evictions_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.4"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists && var.evictions_threshold != "" ? local.redis_memcached_alarm_count : 0
   alarm_description        = "Evictions over ${var.evictions_threshold}"
@@ -297,7 +297,7 @@ module "evictions_alarm" {
 }
 
 module "cpu_utilization_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.4"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists ? local.redis_memcached_alarm_count : 0
   alarm_name               = var.cluster_name == "" ? "${var.name}-CPUUtilizationAlarm" : "${var.cluster_name}-CPUUtilizationAlarm"
@@ -316,7 +316,7 @@ module "cpu_utilization_alarm" {
 }
 
 module "curr_connections_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.4"
 
   alarm_count              = false == local.redis_multishard && false == local.conflict_exists && var.curr_connections_threshold != "" ? local.redis_memcached_alarm_count : 0
   alarm_name               = var.cluster_name == "" ? "${var.name}-CurrConnectionsAlarm" : "${var.cluster_name}-CurrConnectionsAlarm"
@@ -363,7 +363,7 @@ locals {
 }
 
 module "swap_usage_alarm" {
-  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.0"
+  source = "git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.12.4"
 
   alarm_count              = local.elasticache_name == "memcached" && false == local.conflict_exists ? 1 : 0
   alarm_description        = "CacheCluster ${local.memcache_cluster_id} SwapUsage over ${var.swap_usage_threshold}"
