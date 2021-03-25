@@ -53,6 +53,13 @@ The following module variables were updated to better meet current Rackspace sty
 - `create_route53_record` -> `create_internal_zone_record`
 - `security_group_list` -> `security_groups`
 
+## Requirements
+
+| Name | Version |
+|------|---------|
+| terraform | >= 0.12 |
+| aws | >= 2.7.0 |
+
 ## Providers
 
 | Name | Version |
@@ -60,10 +67,30 @@ The following module variables were updated to better meet current Rackspace sty
 | aws | >= 2.7.0 |
 | null | n/a |
 
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| cpu_utilization_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=0.12.6 |  |
+| curr_connections_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=0.12.6 |  |
+| evictions_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=0.12.6 |  |
+| swap_usage_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=0.12.6 |  |
+
+## Resources
+
+| Name |
+|------|
+| [aws_elasticache_cluster](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/elasticache_cluster) |
+| [aws_elasticache_parameter_group](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/elasticache_parameter_group) |
+| [aws_elasticache_replication_group](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/elasticache_replication_group) |
+| [aws_elasticache_subnet_group](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/elasticache_subnet_group) |
+| [aws_route53_record](https://registry.terraform.io/providers/hashicorp/aws/2.7.0/docs/resources/route53_record) |
+| [null_data_source](https://registry.terraform.io/providers/hashicorp/null/latest/docs/data-sources/data_source) |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | at\_rest\_encrypted\_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`. | `bool` | `false` | no |
 | authentication\_token | (redis, redis multi shard) The password used to access a password protected server. Can be specified only if `in_transit_encryption = true` and will be ignored otherwise | `string` | `""` | no |
 | cache\_cluster\_port | (memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211 | `string` | `""` | no |
@@ -109,4 +136,3 @@ The following module variables were updated to better meet current Rackspace sty
 |------|-------------|
 | elasticache\_endpoint | Elasticache endpoint address |
 | elasticache\_internal\_r53\_record | Internal Route 53 record FQDN for the Elasticache endpoint(s) |
-
