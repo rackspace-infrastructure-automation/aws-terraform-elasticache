@@ -36,6 +36,10 @@ Using [aws-terraform-cloudwatch\_alarm](https://github.com/rackspace-infrastruct
 	- curr\_connections\_alarm
 	- swap\_usage\_alarm
 
+## Requirements
+
+No requirements.
+
 ## Providers
 
 | Name | Version |
@@ -43,10 +47,30 @@ Using [aws-terraform-cloudwatch\_alarm](https://github.com/rackspace-infrastruct
 | aws | n/a |
 | null | n/a |
 
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| cpu_utilization_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1 |  |
+| curr_connections_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1 |  |
+| evictions_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1 |  |
+| swap_usage_alarm | git@github.com:rackspace-infrastructure-automation/aws-terraform-cloudwatch_alarm//?ref=v0.0.1 |  |
+
+## Resources
+
+| Name |
+|------|
+| [aws_elasticache_cluster](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_cluster) |
+| [aws_elasticache_parameter_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_parameter_group) |
+| [aws_elasticache_replication_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_replication_group) |
+| [aws_elasticache_subnet_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elasticache_subnet_group) |
+| [aws_route53_record](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/route53_record) |
+| [null_data_source](https://registry.terraform.io/providers/hashicorp/null/latest/docs/data-sources/data_source) |
+
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:-----:|
+|------|-------------|------|---------|:--------:|
 | additional\_tags | (memcached, redis, redis multi shard) Additional tags to be added to the Elasticache resources. Please see examples directory in this repo for examples. | `map` | `{}` | no |
 | at\_rest\_encrypted\_disk | (redis, redis multi shard) Indicates whether to enable encryption at rest. ONLY AVAILABLE FOR REDIS 3.2.6, 4.0.10 AND 5.0.0. `true` or `false`. | `string` | `false` | no |
 | cache\_cluster\_port | (memcached, redis, redis multi shard) The port number on which each of the cache nodes will accept connections. Default for redis is 6379. Default for memcached is 11211 | `string` | `""` | no |
@@ -89,4 +113,3 @@ Using [aws-terraform-cloudwatch\_alarm](https://github.com/rackspace-infrastruct
 |------|-------------|
 | elasticache\_endpoint | Elasticache endpoint address |
 | elasticache\_internal\_r53\_record | Internal Route 53 record FQDN for the Elasticache endpoint(s) |
-
